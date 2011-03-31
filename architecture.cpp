@@ -2,77 +2,100 @@
 
 #include"architecture.hpp"
 
-template<class filler>
-wheel<filler>::wheel()
-{
-	master = 0; 
-	focus  = 0; 
-}
-
+// класс arch
 template <class filler>
 arch<filler>::arch(const filler* stuff)
 {
 	object = stuff;
-	right = 0;
-	left = 0;
-};
-template <class filler>
-void arch<filler>::destruct()
-{
-  try		
-	{
-	  if (!object)
-		{
-		 	object->ptr_count--;
-			if (object->ptr_count == 0) throw 1; //обработчик
-		}
-		object = 0;
-	}
-	catch(...)
-	{
-		//обработчик
-	}			
-		
-	if (!right)
-	{
-		this->right->left = this->left;
-	}
-	if (!left)
-	{
-		this->left->right = this->right;
-	}
-	
-	right = 0;
-	left = 0;
+	right = this;
+	left = this;
 };
 
-template<class filler>
+template <class filler>
+arch<filler>* arch<filler>::next()
+{
+	return this->right;
+}
+
+template <class filler>
+arch<filler>* arch<filler>::prev()
+{
+	return this->left;
+}
+
+template <class filler>
 arch<filler>* arch<filler>::move(int dir)
 {
+	filler* aux;
 	if (dir == RIGHT)
-		if (!right)
-			{
-				filler* aux = this->object;
-			  this->object = this->right->object;
-				this->right->object = aux;		
-				return this->right;
-			}
-  if (dir == LEFT)
-		if (!left)
-			{
-				filler* aux = this->object;
-			  this->object = this->left->object;
-				this->left->object = aux;		
-				return this->right;
-			}
-	return this;
+	{
+			aux = this->next()->object;
+			this->next()->object = this->object;
+			this->object = aux;
+     	return this->next();
+  } 
+	else if (dir == LEFT)
+	{
+			aux = this->prev()->object;
+			this->prev()->object = this->object;
+  		this->object = aux;
+			return this->prev();
+	}
 }
-template<class filler>
-void arch<filler>::rotate(int dir)
+
+// класс wheel
+template <class filler>
+wheel<filler>::wheel()
 {
-	arch<filler>* aux;
-	aux = this;
-	do
-		aux = move(dir);
-	while (aux != this);
-}	
+	focus  = 0; 
+	count  = 0;
+}
+
+template <class filler>
+void wheel<filler>::rotate(int dir)
+{
+	if (!focus)
+	{
+		arch<filler>* aux;
+  	aux = focus;
+    do
+		  aux = focus->move(dir);
+  	while (aux != focus);
+	}
+}
+
+template <class filler>
+void wheel<filler>::operator+(arch<filler>* obj)
+{
+	if (!focus)
+  {
+		focus->next() = obj;
+		obj->next() = focus->next();
+		obj->prev() = focus;
+		focus->prev() = obj;
+	}
+  focus = obj;
+	count++;
+}
+
+template <class filler>
+void wheel<filler>::operator-(arch<filler>* obj)
+{
+	count--;
+
+	if (obj == focus)
+		focus = focus->next();
+
+	if (count > 0)
+  {
+		obj->prev()->next() = obj->next();
+		obj->next()->prev() = obj->prev();
+	}
+	else 
+	{
+		focus = 0;
+		count = 0;
+	}
+	//разобраться с удалением арча
+}
+

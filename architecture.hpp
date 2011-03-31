@@ -13,9 +13,9 @@ class arch
 public:
 	arch(const filler* stuff);
 	~arch();
+	arch<filler>* next();
+	arch<filler>* prev();
 	arch<filler>* move(int dir); // сдвигает объект в колесе
-	void rotate(int dir); // сдвигает все окна
-	void destruct(); // удаляет арку из колеса 
 private:
   arch();// запрещено создавать пустые арки
 };
@@ -23,11 +23,14 @@ private:
 template<class filler>
 class wheel 
 {
-  arch<filler>* master;
+	int count;
   arch<filler>* focus;
 public:
 	wheel ();
 	~wheel ();
+	void rotate(int dir); // сдвигает все окна
+	void operator+(arch<filler>* obj);
+	void operator-(arch<filler>* obj);
 };
 
 class window 
