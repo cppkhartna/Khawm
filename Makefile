@@ -1,10 +1,12 @@
 GXX = g++
-CFLAGS = 
+CFLAGS = -lX11 
 
 architecture.o: architecture.cpp architecture.hpp
 	$(GXX) $(CFLAGS) -c architecture.cpp -o architecture.o	
-khawm: main.cpp architecture.o
-	$(GXX) $(CFLAGS) main.cpp architecture.o -o khawm
+windowmanager.o: windowmanager.cpp windowmanager.hpp architecture.hpp 
+	$(GXX) $(CFLAGS) -c windowmanager.cpp -o windowmanager.o	
+khawm: main.cpp architecture.o windowmanager.o
+	$(GXX) $(CFLAGS) main.cpp architecture.o windowmanager.o -o khawm
 run: khawm
 	./khawm
 clean:

@@ -1,4 +1,11 @@
 //Khartikova
+#include <X11/cursorfont.h>
+#include <X11/Xlib.h>
+#include <X11/keysym.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/Xmd.h>
+
 #define RIGHT 1
 #define LEFT 2
 #define clockwise 2
@@ -35,6 +42,12 @@ public:
 
 class window 
 {
+  Window	w;
+	char *name;
+	int x;
+	int y;
+	int width;
+	int height;
 public:
 	window ();
 	~window ();
@@ -54,12 +67,4 @@ class workspace
 public:
 	workspace ();
 	~workspace ();
-};
-
-class cube 
-{
-	wheel<workspace> workspaces;
-public:
-	cube ();
-	~cube ();
 };

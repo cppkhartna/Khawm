@@ -12,29 +12,14 @@
 //#endif
 
 #include <iostream>
-#include"architecture.hpp"
+#include"windowmanager.hpp"
 
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-				Display* display;
-				display = XOpenDisplay(0);
-
-				if (!display) cout<< "Error!";
-				else cout << "o_O";
-				
-  			int screen, root;
-				screen = DefaultScreen(display);
-				root = RootWindow(display, screen);
-				if (true) cout << "%)" << endl;
-   XCreateSimpleWindow(display, root,
-			      0, 0, 30, 100, 1,
-			      BlackPixel(display, screen),
-			      WhitePixel(display, screen));
-
-
-
+  windowmanager wm;
+	cout << wm.MainLoop();
 	return 0;
 }
 
