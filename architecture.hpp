@@ -38,11 +38,12 @@ public:
 	void rotate(int dir); // сдвигает все окна
 	void operator+(arch<filler>* obj);
 	void operator-(arch<filler>* obj);
+	arch<filler>* ch_focus(int dir);
 };
 
 class window 
 {
-  Window	w;
+  Window w;
 	char *name;
 	int x;
 	int y;
@@ -52,6 +53,14 @@ public:
 	window ();
 	~window ();
 };
+
+template<>
+class wheel<window>
+{
+	public:
+		void checktree(Window* row);
+};
+
 
 class group : public wheel<window>, public window
 {
