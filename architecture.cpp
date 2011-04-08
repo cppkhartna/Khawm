@@ -1,6 +1,6 @@
 //Khartikova
-
-#include"architecture.hpp"
+#include "khawm.hpp"
+#include "architecture.hpp"
 
 // класс arch
 template <class filler>
@@ -48,6 +48,7 @@ template <class filler>
 wheel<filler>::wheel()
 {
 	focus  = 0; 
+	master = 0;
 	count  = 0;
 }
 
@@ -74,6 +75,7 @@ void wheel<filler>::operator+(arch<filler>* obj)
 		obj->prev() = focus;
 		focus->prev() = obj;
 	}
+	else master = obj;
   focus = obj;
 	count++;
 }
@@ -85,6 +87,9 @@ void wheel<filler>::operator-(arch<filler>* obj)
 
 	if (obj == focus)
 		focus = focus->next();
+	
+	if (obj == master)
+		master = master->next();
 
 	if (count > 0)
   {
@@ -93,9 +98,87 @@ void wheel<filler>::operator-(arch<filler>* obj)
 	}
 	else 
 	{
-		focus = 0;
-		count = 0;
+		focus  = 0;
+		master = 0;
+		count  = 0;
 	}
 	//разобраться с удалением арча
 }
 
+template <class filler>
+arch<filler>& wheel<filler>::operator ++()
+{
+	focus = focus->next();
+	return focus;
+}
+
+template <class filler>
+arch<filler>& wheel<filler>::operator --()
+{
+	focus = focus->prev();
+	return focus;
+}
+
+template <class filler>
+arch<filler>& wheel<filler>::operator [](unsigned int i)
+{
+	//отсчёт ведётся вправо
+	arch<filler>* aux;
+	aux = master;	
+	for (int j = 0; j < i; j++) 
+	{
+		aux = master->next();	
+	}
+	return aux;
+}
+
+template <class filler>
+arch<filler>& wheel<filler>::operator$()
+{
+	return focus;
+}
+
+template <class filler>
+arch<filler>& wheel<filler>::operator ++(int)
+{
+	return focus->move(RIGHT);
+}
+
+
+template <class filler>
+arch<filler>& wheel<filler>::operator --(int)
+{
+	return focus->move(LEFT);
+}
+
+
+template <class filler>
+void wheel<filler>::tile(int layout, int area_h, int area_w)
+{
+	
+}
+
+//template<class filler>
+//void wheel<filler>::checktree(Window* row, int n)
+//{		
+  //for (int i = 0; i < count; i++)
+	//{
+		//for (int j = 0; j < n; j++)
+		//{
+				//u
+		//}
+		//`<...>`
+		//this[i] = 0;	
+	//}
+	
+//}   посмотри потом, может, сделать для перезагрузки, а пока попробуй
+//    Notify
+
+// класс window
+void window::set(unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h)
+{
+  x = v_x;
+	y = v_y;
+	width  = v_w;
+	height = v_w;	
+}
