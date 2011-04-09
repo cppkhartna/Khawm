@@ -1,14 +1,15 @@
 //Khartikova
 #include "khawm.hpp"
 #include "windowmanager.hpp"
+#include "keyboard.hpp"
 
 windowmanager::windowmanager()
 {
 	display = XOpenDisplay(0);
 	screen = DefaultScreen(display);
 	root = RootWindow(display, screen);
-	XDisplayWidth(display, w_size);
-	XDisplayHeight(display, h_size);
+	w_size = XDisplayWidth(display, screen);
+	h_size = XDisplayHeight(display, screen);
 
 	//XCreateSimpleWindow(display, root,
 		//0, 0, 30, 100, 1,
@@ -19,17 +20,22 @@ windowmanager::windowmanager()
 
 }
 
-int windowmanager::mainloop()
+int windowmanager::MainLoop()
 {
 	XEvent xev;
+
+	for (int i = 0; i < key_number; i++) 
+	{
+		XGrabKey(display
+				, XKeysymToKeycode(display, keyboard[i].key) 
+				, keyboard[i].mask, root, True, GrabModeAsync, GrabModeAsync);
+	}
+
 	for (;;)
 	{
 		//gettree();
 
-
-		XGrabKey(display
-						, XKeysymToKeycode(display, XStringToKeysym("C"))
-						, Mod4Mask, root, True, GrabModeAsync, GrabModeAsync);
+    workspaces()->windows.update_focus(display);
 
 
 		XNextEvent(display, &xev);
@@ -38,10 +44,7 @@ int windowmanager::mainloop()
 			case KeyPress:
 				handleKeyEvents(&xev);
 			break;
-			default:
-			XKillClient(display, xev.xcreatewindow.window);
-		
-		};
+		}
 	
 	}
 				
@@ -59,7 +62,10 @@ void windowmanager::handleKeyEvents(XEvent *xev)
 
 }
 
+void windowmanager::Settings()
+{
 
+}
 
 //void windowmanager::gettree()
 //{

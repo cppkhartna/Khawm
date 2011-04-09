@@ -2,6 +2,16 @@
 //khawm is Khana Window Manager
 //Thanks a lot to tinywm and aewm++ developers for fairly simple code
 //examples!
+//
+//
+//
+//TODO:
+//
+//1. MoveFocusTo
+//2. Focused
+//
+//
+
 #include <X11/cursorfont.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>

@@ -133,9 +133,9 @@ arch<filler>& wheel<filler>::operator [](unsigned int i)
 }
 
 template <class filler>
-arch<filler>& wheel<filler>::operator$()
+filler* wheel<filler>::operator()()
 {
-	return focus;
+	return focus->object;
 }
 
 template <class filler>
@@ -151,6 +151,11 @@ arch<filler>& wheel<filler>::operator --(int)
 	return focus->move(LEFT);
 }
 
+template <class filler>
+void wheel<filler>::update_focus(Display *display)
+{
+	XSetInputFocus(display, focus->object->w, RevertToNone, CurrentTime);
+}
 
 template <class filler>
 void wheel<filler>::tile(int layout, int area_h, int area_w)

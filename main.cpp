@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 	if (fork())
 	{
 		sleep(2);
-		cout << wm.mainloop();
+		cout << wm.MainLoop();
 	}
 	else
 	{

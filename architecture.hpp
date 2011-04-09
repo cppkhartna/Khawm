@@ -31,11 +31,12 @@ public:
 	arch<filler>& operator++(); //фокусирует окно справа
 	arch<filler>& operator--(); //фокусирует окно слева
 	arch<filler>& operator[](unsigned int i); // фокусирует конкретное окно, считая от мастера
-	arch<filler>& operator$(); // доступ к фокусу
+	filler* operator()(); // доступ к объекту фокуса
 	
 	arch<filler>& operator++(int); //меняет местами фокус и правую дугу
 	arch<filler>& operator--(int); //меняет местами фокус и левую дугу
 
+	void update_focus(Display *display);
 	virtual void tile(int layout, int area_h, int area_w);
 	//void checktree(Window* row, int n);
 };
@@ -77,9 +78,9 @@ public:
 
 class workspace  
 {
-  wheel<window>* windows;	
 	char* name;
 public:
+  wheel<window> windows;	
 	workspace ();
 	~workspace ();
 };
