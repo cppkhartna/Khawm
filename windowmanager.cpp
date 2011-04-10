@@ -1,7 +1,7 @@
 //Khartikova
 #include "khawm.hpp"
 #include "windowmanager.hpp"
-#include "keyboard.hpp"
+#include "config.hpp"
 
 windowmanager::windowmanager()
 {
@@ -10,17 +10,22 @@ windowmanager::windowmanager()
 	root = RootWindow(display, screen);
 	w_size = XDisplayWidth(display, screen);
 	h_size = XDisplayHeight(display, screen);
+	workspaces = new wheel<workspace>;
 
 	//XCreateSimpleWindow(display, root,
 		//0, 0, 30, 100, 1,
 		//BlackPixel(display, screen),
 		//WhitePixel(display, screen));
 
-	//MainLoop();
+	//Loop();
 
 }
 
-int windowmanager::MainLoop()
+//windowmanager::~windowmanager()
+//{
+//}
+
+int windowmanager::Loop()
 {
 	XEvent xev;
 
@@ -35,14 +40,15 @@ int windowmanager::MainLoop()
 	{
 		//gettree();
 
-    workspaces()->windows.update_focus(display);
-
+    //workspaces()->windows.update_focus(display);
+		(*workspaces)()->windows->update_focus(display);
+						//.windows.update_focus(display);
 
 		XNextEvent(display, &xev);
 		switch (xev.type)
 		{
 			case KeyPress:
-				handleKeyEvents(&xev);
+				KeyEvents(&xev);
 			break;
 		}
 	
@@ -50,7 +56,7 @@ int windowmanager::MainLoop()
 				
 }
 
-void windowmanager::handleKeyEvents(XEvent *xev)
+void windowmanager::KeyEvents(XEvent *xev)
 {
   KeySym ks;
 	ks = XKeycodeToKeysym(display, xev->xkey.keycode,0);
@@ -59,11 +65,6 @@ void windowmanager::handleKeyEvents(XEvent *xev)
 	//{
 		//case 
 	//}
-
-}
-
-void windowmanager::Settings()
-{
 
 }
 

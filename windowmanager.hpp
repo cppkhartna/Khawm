@@ -3,7 +3,7 @@
 #include "architecture.hpp"
 class windowmanager 
 {
-	wheel<workspace> workspaces;
+	wheel<workspace>* workspaces;
 	Display* display;
 	int screen;
 	int root;
@@ -14,9 +14,8 @@ class windowmanager
 public:
 	windowmanager ();
 	~windowmanager () {};
-  int MainLoop();
-	void handleKeyEvents(XEvent *xev);
-	void Settings();
+  int Loop();
+	void KeyEvents(XEvent *xev);
 	//void gettree();
 
 };

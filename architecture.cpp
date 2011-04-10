@@ -53,6 +53,12 @@ wheel<filler>::wheel()
 }
 
 template <class filler>
+wheel<filler>::~wheel()
+{
+}
+
+
+template <class filler>
 void wheel<filler>::rotate(int dir)
 {
 	if (!focus)
@@ -152,16 +158,16 @@ arch<filler>& wheel<filler>::operator --(int)
 }
 
 template <class filler>
-void wheel<filler>::update_focus(Display *display)
+void wheel<filler>::update_focus(Display* display)
 {
 	XSetInputFocus(display, focus->object->w, RevertToNone, CurrentTime);
 }
 
-template <class filler>
-void wheel<filler>::tile(int layout, int area_h, int area_w)
-{
+//template <class filler>
+//void wheel<filler>::tile(int layout, int area_h, int area_w)
+//{
 	
-}
+//}
 
 //template<class filler>
 //void wheel<filler>::checktree(Window* row, int n)
@@ -187,3 +193,16 @@ void window::set(unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned 
 	width  = v_w;
 	height = v_w;	
 }
+
+//workspace
+workspace::workspace()
+{
+	windows = new wheel<window>;
+}
+workspace::~workspace()
+{
+	delete windows;
+}
+
+wheel<workspace> a;
+wheel<window> b;

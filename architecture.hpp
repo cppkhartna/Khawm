@@ -7,7 +7,7 @@ class arch
 	filler* object;
 public:
 	arch(const filler* stuff);
-	~arch();
+	~arch() {};
 	arch<filler>* next();
 	arch<filler>* prev();
 	arch<filler>* move(int dir); // сдвигает объект в колесе
@@ -36,8 +36,8 @@ public:
 	arch<filler>& operator++(int); //меняет местами фокус и правую дугу
 	arch<filler>& operator--(int); //меняет местами фокус и левую дугу
 
-	void update_focus(Display *display);
-	virtual void tile(int layout, int area_h, int area_w);
+	void update_focus(Display* display);
+	//virtual void tile(int layout, int area_h, int area_w);
 	//void checktree(Window* row, int n);
 };
 
@@ -50,13 +50,13 @@ class window
 	int width;
 	int height;
 public:
-	window (Window* obj);
-	~window ();
+	window (/*Window* obj*/) {};
+	~window () {};
 	void make_me_your_master(wheel<window>* please);
 	void set(unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h);
 	void show();
 	void hide();
-	virtual void tile();
+	//virtual void tile();
 };
 
 class group : public wheel<window>, public window
@@ -73,14 +73,15 @@ public:
 	group ();
 	~group ();
 	//приведение типов group 2 window
-	virtual void tile();
+	//virtual void tile();
 };
 
 class workspace  
 {
 	char* name;
 public:
-  wheel<window> windows;	
+  wheel<window>* windows;	
 	workspace ();
 	~workspace ();
 };
+

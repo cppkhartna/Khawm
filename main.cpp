@@ -7,19 +7,19 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  windowmanager wm;
-	if (fork())
-	{
-		sleep(2);
-		cout << wm.MainLoop();
-	}
-	else
-	{
-		if (fork())
-		execlp("xclock", "xclock", 0);
-		else
-		execlp("xclock", "xclock", 0);
-	}
+	//windowmanager wm;
+	//if (fork())
+	//{
+		//sleep(2);
+		//cout << wm.Loop();
+	//}
+	//else
+	//{
+		//if (fork())
+		//execlp("xclock", "xclock", 0);
+		//else
+		//execlp("xclock", "xclock", 0);
+	//}
 	return 0;
 }
 
