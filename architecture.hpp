@@ -1,41 +1,43 @@
 //Khartikova
-template <class filler>
-class arch
-{
-	arch* right;
-	arch* left;
-	filler* object;
-public:
-	arch(const filler* stuff);
-	~arch() {};
-	arch<filler>* next();
-	arch<filler>* prev();
-	arch<filler>* move(int dir); // сдвигает объект в колесе
-private:
-  arch();// запрещено создавать пустые арки
-};
-
 template<class filler>
 class wheel 
 {
+	struct arch
+	{
+		arch* next;
+		arch* prev;
+		filler* object;
+		arch(filler* obj) 
+		{
+			next = this;
+			prev = this;
+			object = obj;			
+		};
+	};
+				
 	int count;
-  arch<filler>* master;
-  arch<filler>* focus;
+  arch* master;
+  arch* focus;
+
+  void move(int dir);
+
 public:
 	wheel ();
 	~wheel ();
 	void rotate(int dir); // сдвигает все окна
-	void operator+(arch<filler>* obj); // добавляет дугу в колесо
-	void operator-(arch<filler>* obj); // удаляет дугу из колеса
+	void operator+(filler* obj); // добавляет объект в колесо
+	filler* operator-(); // достаёт объект из колеса
 	
-	arch<filler>& operator++(); //фокусирует окно справа
-	arch<filler>& operator--(); //фокусирует окно слева
-	arch<filler>& operator[](unsigned int i); // фокусирует конкретное окно, считая от мастера
-	filler* operator()(); // доступ к объекту фокуса
+	void operator++(); //фокусирует дугу справа
+	void operator--(); //фокусирует дугу слева
+	filler& operator[](unsigned int i); // фокусирует конкретную дугу, считая от мастера
+	filler& operator()(); // доступ к объекту фокуса
+	operator int(); //возвращает номер фокуса
 	
-	arch<filler>& operator++(int); //меняет местами фокус и правую дугу
-	arch<filler>& operator--(int); //меняет местами фокус и левую дугу
+	void operator++(int); //меняет местами фокус и правую дугу
+	void operator--(int); //меняет местами фокус и левую дугу
 
+	void swap(unsigned int first, unsigned int second);//меняет местами две дуги
 	void update_focus(Display* display);
 	//virtual void tile(int layout, int area_h, int area_w);
 	//void checktree(Window* row, int n);
@@ -59,22 +61,22 @@ public:
 	//virtual void tile();
 };
 
-class group : public wheel<window>, public window
-{
-	int x;
-	int y;
-	int width;
-	int height;
+//class group : public wheel<window>, public window
+//{
+	//int x;
+	//int y;
+	//int width;
+	//int height;
 	
-	int count;
-  arch<window>* master;
-  arch<window>* focus;
-public:
-	group ();
-	~group ();
+	//int count;
+  //arch* master;
+  //arch* focus;
+//public:
+	//group ();
+	//~group ();
 	//приведение типов group 2 window
 	//virtual void tile();
-};
+//};
 
 class workspace  
 {

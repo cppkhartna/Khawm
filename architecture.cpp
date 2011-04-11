@@ -2,48 +2,27 @@
 #include "khawm.hpp"
 #include "architecture.hpp"
 
-// класс arch
+// класс wheel
 template <class filler>
-arch<filler>::arch(const filler* stuff)
-{
-	object = stuff;
-	right = this;
-	left = this;
-};
-
-template <class filler>
-arch<filler>* arch<filler>::next()
-{
-	return this->right;
-}
-
-template <class filler>
-arch<filler>* arch<filler>::prev()
-{
-	return this->left;
-}
-
-template <class filler>
-arch<filler>* arch<filler>::move(int dir)
+void wheel<filler>::move(int dir)
 {
 	filler* aux;
 	if (dir == RIGHT)
 	{
-			aux = this->next()->object;
-			this->next()->object = this->object;
-			this->object = aux;
-     	return this->next();
+			aux = focus->next->object;
+			focus->next->object = focus->object;
+			focus->object = aux;
+     	focus = focus->next;
   } 
 	else if (dir == LEFT)
 	{
-			aux = this->prev()->object;
-			this->prev()->object = this->object;
-  		this->object = aux;
-			return this->prev();
+			aux = focus->prev->object;
+			focus->prev->object = focus->object;
+  		focus->object = aux;
+			focus = focus->prev;
 	}
 }
 
-// класс wheel
 template <class filler>
 wheel<filler>::wheel()
 {
@@ -55,6 +34,15 @@ wheel<filler>::wheel()
 template <class filler>
 wheel<filler>::~wheel()
 {
+	filler* aux;			
+	if (!focus)
+	{
+    for (int i = 0; i < count; i++)
+		{
+		  aux = -*this;
+			delete aux;
+		}
+	}
 }
 
 
@@ -63,44 +51,48 @@ void wheel<filler>::rotate(int dir)
 {
 	if (!focus)
 	{
-		arch<filler>* aux;
-  	aux = focus;
-    do
-		  aux = focus->move(dir);
-  	while (aux != focus);
+    for (int i = 0; i < count; i++)
+		{
+		  focus->move(dir);
+		}
 	}
 }
 
 template <class filler>
-void wheel<filler>::operator+(arch<filler>* obj)
+void wheel<filler>::operator+(filler* obj)
 {
+	arch* aux;
+	aux = new arch(obj);
+	
 	if (!focus)
   {
-		focus->next() = obj;
-		obj->next() = focus->next();
-		obj->prev() = focus;
-		focus->prev() = obj;
+		focus->next = aux;
+		aux->next = focus->next;
+		aux->prev = focus;
+		focus->prev = aux;
 	}
-	else master = obj;
-  focus = obj;
+	else master = aux;
+  focus = aux;
 	count++;
 }
 
 template <class filler>
-void wheel<filler>::operator-(arch<filler>* obj)
+filler* wheel<filler>::operator-()
 {
 	count--;
 
-	if (obj == focus)
-		focus = focus->next();
+	filler* aux;
+	aux = focus->object;
 	
-	if (obj == master)
-		master = master->next();
+	if (focus == master)
+		master = master->next;
+
 
 	if (count > 0)
   {
-		obj->prev()->next() = obj->next();
-		obj->next()->prev() = obj->prev();
+		focus->prev->next = focus->next;
+		focus->next->prev = focus->prev;
+		focus = focus->next;
 	}
 	else 
 	{
@@ -108,53 +100,79 @@ void wheel<filler>::operator-(arch<filler>* obj)
 		master = 0;
 		count  = 0;
 	}
-	//разобраться с удалением арча
 }
 
 template <class filler>
-arch<filler>& wheel<filler>::operator ++()
+void wheel<filler>::operator ++()
 {
-	focus = focus->next();
+	focus = focus->next;
 	return focus;
 }
 
 template <class filler>
-arch<filler>& wheel<filler>::operator --()
+void wheel<filler>::operator --()
 {
-	focus = focus->prev();
-	return focus;
+	focus = focus->prev;
 }
 
 template <class filler>
-arch<filler>& wheel<filler>::operator [](unsigned int i)
+filler& wheel<filler>::operator [](unsigned int i)
 {
 	//отсчёт ведётся вправо
-	arch<filler>* aux;
+	arch* aux;
 	aux = master;	
 	for (int j = 0; j < i; j++) 
 	{
-		aux = master->next();	
+		aux = master->next;	
 	}
-	return aux;
+	focus = aux;
+	return focus->object;
 }
 
 template <class filler>
-filler* wheel<filler>::operator()()
+filler& wheel<filler>::operator ()()
 {
 	return focus->object;
 }
 
 template <class filler>
-arch<filler>& wheel<filler>::operator ++(int)
+wheel<filler>::operator int()
 {
-	return focus->move(RIGHT);
+  int j = 0;
+
+	arch* aux;
+	aux = focus;
+	
+	while (!aux == master)
+	{
+		aux = aux->prev;
+		j++;
+	}	
+
+	return j;
+
+}
+
+template <class filler>
+void wheel<filler>::operator ++(int)
+{
+	focus->move(RIGHT);
 }
 
 
 template <class filler>
-arch<filler>& wheel<filler>::operator --(int)
+void wheel<filler>::operator --(int)
 {
-	return focus->move(LEFT);
+	focus->move(LEFT);
+}
+
+template <class filler>
+void wheel<filler>::swap(unsigned int first, unsigned int second = 0)
+{
+	filler* aux;
+	aux = *this[first];
+	*this[first]   = *this[second];
+	*this[second]  = aux;	
 }
 
 template <class filler>
@@ -204,5 +222,6 @@ workspace::~workspace()
 	delete windows;
 }
 
-wheel<workspace> a;
 wheel<window> b;
+wheel<workspace> a;
+

@@ -3,7 +3,7 @@
 #include "architecture.hpp"
 class windowmanager 
 {
-	wheel<workspace>* workspaces;
+	wheel<workspace> workspaces;
 	Display* display;
 	int screen;
 	int root;

@@ -10,7 +10,7 @@ windowmanager::windowmanager()
 	root = RootWindow(display, screen);
 	w_size = XDisplayWidth(display, screen);
 	h_size = XDisplayHeight(display, screen);
-	workspaces = new wheel<workspace>;
+	//workspaces = new wheel<workspace>;
 
 	//XCreateSimpleWindow(display, root,
 		//0, 0, 30, 100, 1,
@@ -41,9 +41,11 @@ int windowmanager::Loop()
 		//gettree();
 
     //workspaces()->windows.update_focus(display);
-		(*workspaces)()->windows->update_focus(display);
+		//((*workspaces)()).windows->update_focus(display);
 						//.windows.update_focus(display);
 
+		workspaces.rotate(2);
+		workspaces[workspaces].windows->update_focus(display);
 		XNextEvent(display, &xev);
 		switch (xev.type)
 		{
