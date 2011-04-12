@@ -3,8 +3,8 @@
 #include "architecture.hpp"
 
 // класс wheel
-template <class filler>
-void wheel<filler>::move(int dir)
+
+void wheel::move(int dir)
 {
 	filler* aux;
 	if (dir == RIGHT)
@@ -23,61 +23,61 @@ void wheel<filler>::move(int dir)
 	}
 }
 
-template <class filler>
-wheel<filler>::wheel()
+
+wheel::wheel()
 {
 	focus  = 0; 
 	master = 0;
 	count  = 0;
 }
 
-template <class filler>
-wheel<filler>::~wheel()
+
+wheel::~wheel()
 {
 	filler* aux;			
 	if (!focus)
 	{
-    for (int i = 0; i < count; i++)
+		for (int i = 0; i < count; i++)
 		{
-		  aux = -*this;
+			aux = -*this;
 			delete aux;
 		}
 	}
 }
 
 
-template <class filler>
-void wheel<filler>::rotate(int dir)
+
+void wheel::rotate(int dir)
 {
 	if (!focus)
 	{
-    for (int i = 0; i < count; i++)
+		for (int i = 0; i < count; i++)
 		{
-		  focus->move(dir);
+			move(dir);
 		}
 	}
 }
 
-template <class filler>
-void wheel<filler>::operator+(filler* obj)
+
+wheel* wheel::operator+=(filler* obj)
 {
 	arch* aux;
 	aux = new arch(obj);
 	
 	if (!focus)
-  {
+	{
 		focus->next = aux;
 		aux->next = focus->next;
 		aux->prev = focus;
 		focus->prev = aux;
 	}
 	else master = aux;
-  focus = aux;
+	focus = aux;
 	count++;
 }
 
-template <class filler>
-filler* wheel<filler>::operator-()
+
+filler* wheel::operator-()
 {
 	count--;
 
@@ -89,7 +89,7 @@ filler* wheel<filler>::operator-()
 
 
 	if (count > 0)
-  {
+	{
 		focus->prev->next = focus->next;
 		focus->next->prev = focus->prev;
 		focus = focus->next;
@@ -100,25 +100,55 @@ filler* wheel<filler>::operator-()
 		master = 0;
 		count  = 0;
 	}
+	return aux;
 }
 
-template <class filler>
-void wheel<filler>::operator ++()
+
+//filler* wheel::operator-(unsigned int num)
+//{
+	//count--;
+	//arch* aux;
+	//filler* filler_aux;
+
+	//aux = (*this)[num];
+	//filler_aux = aux->object;
+	
+	//if (aux == master)
+		//master = master->next;
+
+
+	//if (count > 0)
+	//{
+		//aux->prev->next = aux->next;
+		//aux->next->prev = aux->prev;
+		//aux = aux->next;
+	//}
+	//else 
+	//{
+		//focus  = 0;
+		//master = 0;
+		//count  = 0;
+	//}
+	//return filler_aux;
+//}
+
+
+
+void wheel::operator ++()
 {
 	focus = focus->next;
-	return focus;
 }
 
-template <class filler>
-void wheel<filler>::operator --()
+
+void wheel::operator --()
 {
 	focus = focus->prev;
 }
 
-template <class filler>
-filler& wheel<filler>::operator [](unsigned int i)
+
+filler* wheel::operator [](unsigned int i)
 {
-	//отсчёт ведётся вправо
+//	отсчёт ведётся вправо
 	arch* aux;
 	aux = master;	
 	for (int j = 0; j < i; j++) 
@@ -129,21 +159,21 @@ filler& wheel<filler>::operator [](unsigned int i)
 	return focus->object;
 }
 
-template <class filler>
-filler& wheel<filler>::operator ()()
+
+filler* wheel::operator ()()
 {
 	return focus->object;
 }
 
-template <class filler>
-wheel<filler>::operator int()
+
+wheel::operator int()
 {
-  int j = 0;
+	int j = 0;
 
 	arch* aux;
 	aux = focus;
 	
-	while (!aux == master)
+	while (aux != master)
 	{
 		aux = aux->prev;
 		j++;
@@ -153,44 +183,38 @@ wheel<filler>::operator int()
 
 }
 
-template <class filler>
-void wheel<filler>::operator ++(int)
+
+void wheel::operator ++(int)
 {
-	focus->move(RIGHT);
+	move(RIGHT);
 }
 
 
-template <class filler>
-void wheel<filler>::operator --(int)
+
+void wheel::operator --(int)
 {
-	focus->move(LEFT);
+	move(LEFT);
 }
 
-template <class filler>
-void wheel<filler>::swap(unsigned int first, unsigned int second = 0)
+
+void wheel::swap(unsigned int first, unsigned int second = 0)
 {
 	filler* aux;
-	aux = *this[first];
-	*this[first]   = *this[second];
-	*this[second]  = aux;	
-}
+	aux = (*this)[first];
+	*(*this)[first]   = *(*this)[second];
+	*(*this)[second]  = *aux;	
+}//Was ist das? Check it later!
 
-template <class filler>
-void wheel<filler>::update_focus(Display* display)
+
+void wheel::tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h)
 {
-	XSetInputFocus(display, focus->object->w, RevertToNone, CurrentTime);
-}
-
-//template <class filler>
-//void wheel<filler>::tile(int layout, int area_h, int area_w)
-//{
 	
-//}
+}
 
 //template<class filler>
-//void wheel<filler>::checktree(Window* row, int n)
+//void wheel::checktree(Window* row, int n)
 //{		
-  //for (int i = 0; i < count; i++)
+	//for (int i = 0; i < count; i++)
 	//{
 		//for (int j = 0; j < n; j++)
 		//{
@@ -201,27 +225,13 @@ void wheel<filler>::update_focus(Display* display)
 	//}
 	
 //}   посмотри потом, может, сделать для перезагрузки, а пока попробуй
-//    Notify
+	 //Notify
 
-// класс window
-void window::set(unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h)
+//класс window
+void window::tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h)
 {
-  x = v_x;
-	y = v_y;
-	width  = v_w;
-	height = v_w;	
+	//x = v_x;
+	//y = v_y;
+	//width  = v_w;
+	//height = v_w;	
 }
-
-//workspace
-workspace::workspace()
-{
-	windows = new wheel<window>;
-}
-workspace::~workspace()
-{
-	delete windows;
-}
-
-wheel<window> b;
-wheel<workspace> a;
-

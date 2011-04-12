@@ -3,7 +3,7 @@
 #include "architecture.hpp"
 class windowmanager 
 {
-	wheel<workspace> workspaces;
+	wheel workspaces;
 	Display* display;
 	int screen;
 	int root;
@@ -17,5 +17,5 @@ public:
   int Loop();
 	void KeyEvents(XEvent *xev);
 	//void gettree();
-
+	void update_focus(Display* display, Window w);
 };

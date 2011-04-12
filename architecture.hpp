@@ -1,5 +1,19 @@
 //Khartikova
-template<class filler>
+
+class wheel;
+
+class filler 
+{
+public:
+	filler () {};
+	virtual ~filler () {};
+	virtual wheel* windows() = 0;
+	virtual void make_me_your_master(wheel* please) = 0;
+  virtual	void tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h) = 0;
+	virtual void show() = 0;
+	virtual void hide() = 0;
+};
+
 class wheel 
 {
 	struct arch
@@ -14,76 +28,80 @@ class wheel
 			object = obj;			
 		};
 	};
+    
+	void move(int dir);
 				
 	int count;
   arch* master;
   arch* focus;
 
-  void move(int dir);
-
 public:
 	wheel ();
-	~wheel ();
+	virtual ~wheel ();
 	void rotate(int dir); // сдвигает все окна
-	void operator+(filler* obj); // добавляет объект в колесо
-	filler* operator-(); // достаёт объект из колеса
+	wheel* operator+=(filler* obj); // добавляет объект в колесо
+	//filler* operator-(unsigned int num); 
+	// достаёт объект с определённым номером из колеса
+	filler* operator-(); // достаёт объект фокуса из колеса
 	
 	void operator++(); //фокусирует дугу справа
 	void operator--(); //фокусирует дугу слева
-	filler& operator[](unsigned int i); // фокусирует конкретную дугу, считая от мастера
-	filler& operator()(); // доступ к объекту фокуса
+	filler* operator[](unsigned int i); // фокусирует конкретную дугу, считая от мастера
+	filler* operator()(); // доступ к объекту фокуса
 	operator int(); //возвращает номер фокуса
 	
 	void operator++(int); //меняет местами фокус и правую дугу
 	void operator--(int); //меняет местами фокус и левую дугу
 
 	void swap(unsigned int first, unsigned int second);//меняет местами две дуги
-	void update_focus(Display* display);
-	//virtual void tile(int layout, int area_h, int area_w);
+	virtual void tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h);
 	//void checktree(Window* row, int n);
 };
 
-class window 
+class window : public filler 
 {
   Window* w;
 	char *name;
-	int x;
-	int y;
-	int width;
-	int height;
+	bool shown;
+
 public:
-	window (/*Window* obj*/) {};
+	window (Window* win) {};
 	~window () {};
-	void make_me_your_master(wheel<window>* please);
-	void set(unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h);
+	
+	void make_me_your_master(wheel* please);
+
 	void show();
 	void hide();
-	//virtual void tile();
+
+	virtual void tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h);
+private:
+	virtual wheel* windows() {return wheel_of_windows;};
 };
 
-//class group : public wheel<window>, public window
-//{
-	//int x;
-	//int y;
-	//int width;
-	//int height;
-	
-	//int count;
-  //arch* master;
-  //arch* focus;
-//public:
-	//group ();
-	//~group ();
-	//приведение типов group 2 window
-	//virtual void tile();
-//};
+class group : public window
+{
+	wheel* wheel_of_windows;
+public:
+ 	group ();
+	~group ();
+	virtual wheel* windows() {return wheel_of_windows;};
 
-class workspace  
+	void show() {};
+	void hide() {};
+	void tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h);
+};
+
+class workspace : public filler
 {
 	char* name;
+  wheel* wheel_of_windows;	
 public:
-  wheel<window>* windows;	
 	workspace ();
 	~workspace ();
-};
+	
+	virtual wheel* windows() {return wheel_of_windows;};
 
+private:
+	void show() {};
+	void hide() {};
+};

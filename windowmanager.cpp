@@ -10,16 +10,16 @@ windowmanager::windowmanager()
 	root = RootWindow(display, screen);
 	w_size = XDisplayWidth(display, screen);
 	h_size = XDisplayHeight(display, screen);
-	//workspaces = new wheel<workspace>;
 
-	//XCreateSimpleWindow(display, root,
-		//0, 0, 30, 100, 1,
-		//BlackPixel(display, screen),
-		//WhitePixel(display, screen));
-
-	//Loop();
+	Loop();
 
 }
+
+void windowmanager::update_focus(Display* display, Window w)
+{
+	XSetInputFocus(display, w, RevertToNone, CurrentTime);
+}
+
 
 //windowmanager::~windowmanager()
 //{
@@ -40,12 +40,7 @@ int windowmanager::Loop()
 	{
 		//gettree();
 
-    //workspaces()->windows.update_focus(display);
-		//((*workspaces)()).windows->update_focus(display);
-						//.windows.update_focus(display);
 
-		workspaces.rotate(2);
-		workspaces[workspaces].windows->update_focus(display);
 		XNextEvent(display, &xev);
 		switch (xev.type)
 		{
@@ -53,6 +48,14 @@ int windowmanager::Loop()
 				KeyEvents(&xev);
 			break;
 		}
+		window* a;
+		workspaces+=a;
+		workspaces()->windows();
+		
+		group* c;
+		c = (group*) workspaces()->windows();
+		c->windows();
+
 	
 	}
 				
@@ -60,8 +63,8 @@ int windowmanager::Loop()
 
 void windowmanager::KeyEvents(XEvent *xev)
 {
-  KeySym ks;
-	ks = XKeycodeToKeysym(display, xev->xkey.keycode,0);
+  //KeySym ks;
+	//ks = XKeycodeToKeysym(display, xev->xkey.keycode,0);
 	
 	//switch (ks)
 	//{
