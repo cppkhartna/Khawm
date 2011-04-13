@@ -3,17 +3,14 @@
 #include "architecture.hpp"
 class windowmanager 
 {
-	wheel workspaces;
+	wheel* workspaces;
 	Display* display;
 	int screen;
 	int root;
-  unsigned int x_coord;
-  unsigned int y_coord;
-	unsigned int h_size;
-  unsigned int w_size;
+	geom* coord;
 public:
 	windowmanager ();
-	~windowmanager () {};
+	~windowmanager ();
   int Loop();
 	void KeyEvents(XEvent *xev);
 	//void gettree();

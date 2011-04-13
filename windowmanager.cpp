@@ -8,8 +8,14 @@ windowmanager::windowmanager()
 	display = XOpenDisplay(0);
 	screen = DefaultScreen(display);
 	root = RootWindow(display, screen);
-	w_size = XDisplayWidth(display, screen);
-	h_size = XDisplayHeight(display, screen);
+	coord = new geom(0, 0, XDisplayWidth(display, screen), XDisplayHeight(display, screen));
+
+	workspaces = new wheel;
+
+	for (int i = 0; i < ndesktops; i++)
+	{
+	 				
+	}
 
 	Loop();
 
@@ -21,9 +27,10 @@ void windowmanager::update_focus(Display* display, Window w)
 }
 
 
-//windowmanager::~windowmanager()
-//{
-//}
+windowmanager::~windowmanager()
+{
+	delete coord;
+}
 
 int windowmanager::Loop()
 {
@@ -48,13 +55,13 @@ int windowmanager::Loop()
 				KeyEvents(&xev);
 			break;
 		}
-		window* a;
-		workspaces+=a;
-		workspaces()->windows();
+		//window* a;
+		//workspaces+=a;
+		//workspaces()->windows();
 		
-		group* c;
-		c = (group*) workspaces()->windows();
-		c->windows();
+		//group* c;
+		//c = (group*) workspaces()->windows();
+		//c->windows();
 
 	
 	}

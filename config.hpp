@@ -6,11 +6,13 @@ struct keybind
 	const char* cmd;
 };
 
-const int key_number = 2;
+const int key_number = 4;
 
 keybind keyboard[key_number] = {
 	  {Mod4Mask, XK_Right, ":next"}
 	, {Mod4Mask, XK_Left, ":prev"}
+	, {Mod4Mask, XK_Up, ":up"}
+	, {Mod4Mask, XK_Down, ":down"}
 
 
 };

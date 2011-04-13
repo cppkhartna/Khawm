@@ -1,5 +1,20 @@
 //Khartikova
 
+struct geom
+{
+	geom(unsigned v_x, unsigned v_y, unsigned v_w, unsigned v_h)
+	{
+		x = v_x;
+		y = v_y;
+		w = v_w;
+		h = v_h;
+	}
+	unsigned int x;
+	unsigned int y;
+	unsigned int w;
+	unsigned int h;
+};
+
 class wheel;
 
 class filler 
@@ -7,9 +22,10 @@ class filler
 public:
 	filler () {};
 	virtual ~filler () {};
+	void make_me_your_master(wheel* please);
+	
 	virtual wheel* windows() = 0;
-	virtual void make_me_your_master(wheel* please) = 0;
-  virtual	void tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h) = 0;
+  virtual	void tile(Display* display, int layout, geom coord) = 0;
 	virtual void show() = 0;
 	virtual void hide() = 0;
 };
@@ -32,6 +48,7 @@ class wheel
 	void move(int dir);
 				
 	int count;
+	int shown;
   arch* master;
   arch* focus;
 
@@ -40,8 +57,8 @@ public:
 	virtual ~wheel ();
 	void rotate(int dir); // сдвигает все окна
 	wheel* operator+=(filler* obj); // добавляет объект в колесо
-	//filler* operator-(unsigned int num); 
-	// достаёт объект с определённым номером из колеса
+	void operator-(int); //  вычитает число свежесвёрнутых окон 
+	void operator+(int); // добавляет число свежесвёрнутых окон 
 	filler* operator-(); // достаёт объект фокуса из колеса
 	
 	void operator++(); //фокусирует дугу справа
@@ -54,41 +71,48 @@ public:
 	void operator--(int); //меняет местами фокус и левую дугу
 
 	void swap(unsigned int first, unsigned int second);//меняет местами две дуги
-	virtual void tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h);
+	void tile(Display* display, int layout, geom coord); 
 	//void checktree(Window* row, int n);
+
 };
 
 class window : public filler 
 {
   Window* w;
+	Display* display;
 	char *name;
-	bool shown;
+	bool is_shown;
 
 public:
-	window (Window* win) {};
-	~window () {};
+	window (Display* disp, Window* win);
+	~window ();
 	
 	void make_me_your_master(wheel* please);
+	friend void wheel::tile(Display* display, int layout, geom coord); 
 
 	void show();
 	void hide();
 
-	virtual void tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h);
+	virtual void tile(int layout, geom coord); 
+
 private:
-	virtual wheel* windows() {return wheel_of_windows;};
+	window() {};
+	virtual wheel* windows() {}; 
 };
 
 class group : public window
 {
+	bool is_shown;
 	wheel* wheel_of_windows;
 public:
  	group ();
 	~group ();
 	virtual wheel* windows() {return wheel_of_windows;};
+	void make_me_your_master(wheel* please);
 
 	void show() {};
 	void hide() {};
-	void tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h);
+	void tile(Display* display, int layout, geom coord); 
 };
 
 class workspace : public filler
@@ -99,6 +123,7 @@ public:
 	workspace ();
 	~workspace ();
 	
+	void make_me_your_master(wheel* please);
 	virtual wheel* windows() {return wheel_of_windows;};
 
 private:

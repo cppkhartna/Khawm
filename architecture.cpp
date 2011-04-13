@@ -1,9 +1,9 @@
 //Khartikova
 #include "khawm.hpp"
 #include "architecture.hpp"
+#include <cstring>
 
 // класс wheel
-
 void wheel::move(int dir)
 {
 	filler* aux;
@@ -23,14 +23,13 @@ void wheel::move(int dir)
 	}
 }
 
-
 wheel::wheel()
 {
 	focus  = 0; 
 	master = 0;
 	count  = 0;
+	shown  = 0;
 }
-
 
 wheel::~wheel()
 {
@@ -45,8 +44,6 @@ wheel::~wheel()
 	}
 }
 
-
-
 void wheel::rotate(int dir)
 {
 	if (!focus)
@@ -57,7 +54,6 @@ void wheel::rotate(int dir)
 		}
 	}
 }
-
 
 wheel* wheel::operator+=(filler* obj)
 {
@@ -76,7 +72,6 @@ wheel* wheel::operator+=(filler* obj)
 	count++;
 }
 
-
 filler* wheel::operator-()
 {
 	count--;
@@ -87,15 +82,17 @@ filler* wheel::operator-()
 	if (focus == master)
 		master = master->next;
 
-
 	if (count > 0)
 	{
 		focus->prev->next = focus->next;
 		focus->next->prev = focus->prev;
+		delete focus;
 		focus = focus->next;
 	}
 	else 
 	{
+		if (focus) 
+			delete focus;
 		focus  = 0;
 		master = 0;
 		count  = 0;
@@ -103,48 +100,25 @@ filler* wheel::operator-()
 	return aux;
 }
 
+void wheel::operator-(int x)
+{
+	shown -= x;
+}
 
-//filler* wheel::operator-(unsigned int num)
-//{
-	//count--;
-	//arch* aux;
-	//filler* filler_aux;
-
-	//aux = (*this)[num];
-	//filler_aux = aux->object;
-	
-	//if (aux == master)
-		//master = master->next;
-
-
-	//if (count > 0)
-	//{
-		//aux->prev->next = aux->next;
-		//aux->next->prev = aux->prev;
-		//aux = aux->next;
-	//}
-	//else 
-	//{
-		//focus  = 0;
-		//master = 0;
-		//count  = 0;
-	//}
-	//return filler_aux;
-//}
-
-
+void wheel::operator+(int x)
+{
+	shown += x;
+}
 
 void wheel::operator ++()
 {
 	focus = focus->next;
 }
 
-
 void wheel::operator --()
 {
 	focus = focus->prev;
 }
-
 
 filler* wheel::operator [](unsigned int i)
 {
@@ -159,12 +133,10 @@ filler* wheel::operator [](unsigned int i)
 	return focus->object;
 }
 
-
 filler* wheel::operator ()()
 {
 	return focus->object;
 }
-
 
 wheel::operator int()
 {
@@ -183,19 +155,15 @@ wheel::operator int()
 
 }
 
-
 void wheel::operator ++(int)
 {
 	move(RIGHT);
 }
 
-
-
 void wheel::operator --(int)
 {
 	move(LEFT);
 }
-
 
 void wheel::swap(unsigned int first, unsigned int second = 0)
 {
@@ -205,8 +173,7 @@ void wheel::swap(unsigned int first, unsigned int second = 0)
 	*(*this)[second]  = *aux;	
 }//Was ist das? Check it later!
 
-
-void wheel::tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h)
+void wheel::tile(Display* display, int layout, geom coord) 
 {
 	
 }
@@ -227,11 +194,60 @@ void wheel::tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_
 //}   посмотри потом, может, сделать для перезагрузки, а пока попробуй
 	 //Notify
 
-//класс window
-void window::tile(int layout, unsigned int v_x, unsigned int v_y, unsigned int v_w, unsigned int v_h)
+//базовый класс filler
+void filler::make_me_your_master(wheel* please)
 {
-	//x = v_x;
-	//y = v_y;
-	//width  = v_w;
-	//height = v_w;	
+	please->swap(*please);
 }
+
+//класс window
+window::window(Display* disp, Window* win)
+{
+	char** returned;
+	w = win;
+	display = disp;
+	if (XFetchName(display, *win, returned))
+	{
+		name = new char[strlen(*returned)+1];
+		strcpy(name, *returned);
+	}
+	else 
+	{
+		name = new char[8];
+	  strcpy(name, "NO_NAME");
+	}
+}
+
+window::~window()
+{
+	w = 0;
+	delete[] name;
+}
+
+void window::tile(int layout, geom coord) 
+{
+	XMoveResizeWindow(display, *w, coord.x, coord.y, coord.w, coord.h);		
+}
+
+void window::hide()
+{
+	is_shown = false;
+	XUnmapWindow(display, *w);
+}
+
+void window::show()
+{
+	is_shown = true;
+	XMapWindow(display, *w);
+}
+
+workspace::workspace()
+{
+	wheel_of_windows = new wheel; 
+}
+
+workspace::~workspace()
+{
+	delete wheel_of_windows; 
+}
+
