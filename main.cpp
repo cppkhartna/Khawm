@@ -7,11 +7,11 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	//windowmanager wm;
+	windowmanager wm;
 	//if (fork())
 	//{
 		//sleep(2);
-		//cout << wm.Loop();
+	//cout << 2; 
 	//}
 	//else
 	//{

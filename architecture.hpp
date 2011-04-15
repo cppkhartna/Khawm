@@ -15,6 +15,13 @@ struct geom
 	unsigned int h;
 };
 
+class layout 
+{
+public:
+	layout ();
+	~layout ();
+};
+
 class wheel;
 
 class filler 
@@ -64,7 +71,7 @@ public:
 	void operator++(); //фокусирует дугу справа
 	void operator--(); //фокусирует дугу слева
 	filler* operator[](unsigned int i); // фокусирует конкретную дугу, считая от мастера
-	filler* operator()(); // доступ к объекту фокуса
+	filler& operator()(); // доступ к объекту фокуса
 	operator int(); //возвращает номер фокуса
 	
 	void operator++(int); //меняет местами фокус и правую дугу
@@ -125,6 +132,7 @@ public:
 	
 	void make_me_your_master(wheel* please);
 	virtual wheel* windows() {return wheel_of_windows;};
+	void tile(Display* display, int layout, geom coord);
 
 private:
 	void show() {};

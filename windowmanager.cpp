@@ -14,10 +14,12 @@ windowmanager::windowmanager()
 
 	for (int i = 0; i < ndesktops; i++)
 	{
-	 				
+		*workspaces += (workspace*)(new workspace);		
 	}
 
-	Loop();
+	current = (*workspaces)().windows();
+
+	//Loop();
 
 }
 
@@ -29,7 +31,9 @@ void windowmanager::update_focus(Display* display, Window w)
 
 windowmanager::~windowmanager()
 {
+	delete workspaces;
 	delete coord;
+	XCloseDisplay(display);
 }
 
 int windowmanager::Loop()
@@ -55,14 +59,6 @@ int windowmanager::Loop()
 				KeyEvents(&xev);
 			break;
 		}
-		//window* a;
-		//workspaces+=a;
-		//workspaces()->windows();
-		
-		//group* c;
-		//c = (group*) workspaces()->windows();
-		//c->windows();
-
 	
 	}
 				

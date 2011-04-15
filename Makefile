@@ -1,5 +1,5 @@
 GXX = g++
-CFLAGS = -lX11 
+CFLAGS = -g -lX11 
 
 architecture.o: architecture.cpp khawm.hpp architecture.hpp
 	$(GXX) $(CFLAGS) -c architecture.cpp -o architecture.o	

@@ -4,6 +4,7 @@
 class windowmanager 
 {
 	wheel* workspaces;
+	wheel* current;
 	Display* display;
 	int screen;
 	int root;

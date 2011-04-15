@@ -33,20 +33,19 @@ wheel::wheel()
 
 wheel::~wheel()
 {
-	filler* aux;			
-	if (!focus)
+	if (focus)
 	{
-		for (int i = 0; i < count; i++)
+		int save_count(count);
+		for (int i = 0; i < save_count; i++)
 		{
-			aux = -*this;
-			delete aux;
+			delete (-(*this));
 		}
 	}
 }
 
 void wheel::rotate(int dir)
 {
-	if (!focus)
+	if (focus)
 	{
 		for (int i = 0; i < count; i++)
 		{
@@ -60,16 +59,16 @@ wheel* wheel::operator+=(filler* obj)
 	arch* aux;
 	aux = new arch(obj);
 	
-	if (!focus)
+	if (count)
 	{
-		focus->next = aux;
 		aux->next = focus->next;
+		focus->next = aux;
 		aux->prev = focus;
-		focus->prev = aux;
 	}
 	else master = aux;
 	focus = aux;
 	count++;
+	return this;
 }
 
 filler* wheel::operator-()
@@ -78,6 +77,9 @@ filler* wheel::operator-()
 
 	filler* aux;
 	aux = focus->object;
+
+	arch* arch_aux;
+	arch_aux = focus;
 	
 	if (focus == master)
 		master = master->next;
@@ -86,17 +88,15 @@ filler* wheel::operator-()
 	{
 		focus->prev->next = focus->next;
 		focus->next->prev = focus->prev;
-		delete focus;
 		focus = focus->next;
 	}
 	else 
 	{
-		if (focus) 
-			delete focus;
 		focus  = 0;
 		master = 0;
 		count  = 0;
 	}
+	delete arch_aux;
 	return aux;
 }
 
@@ -133,9 +133,9 @@ filler* wheel::operator [](unsigned int i)
 	return focus->object;
 }
 
-filler* wheel::operator ()()
+filler& wheel::operator ()()
 {
-	return focus->object;
+	return *focus->object;
 }
 
 wheel::operator int()
@@ -251,3 +251,7 @@ workspace::~workspace()
 	delete wheel_of_windows; 
 }
 
+void workspace::tile(Display* display, int layout, geom coord)
+{
+
+}
