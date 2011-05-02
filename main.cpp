@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
 {
 	windowmanager wm;
 	//if (fork())
+	//
 	//{
 		//sleep(2);
 	//cout << 2; 

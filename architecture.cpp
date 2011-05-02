@@ -1,9 +1,11 @@
 //Khartikova
 #include "khawm.hpp"
 #include "architecture.hpp"
+#include "bar.hpp"
 #include <cstring>
 
 // класс wheel
+//
 void wheel::move(int dir)
 {
 	filler* aux;
@@ -125,7 +127,7 @@ filler* wheel::operator [](unsigned int i)
 //	отсчёт ведётся вправо
 	arch* aux;
 	aux = master;	
-	for (int j = 0; j < i; j++) 
+	for (unsigned int j = 0; j < i; j++) 
 	{
 		aux = master->next;	
 	}
@@ -133,9 +135,9 @@ filler* wheel::operator [](unsigned int i)
 	return focus->object;
 }
 
-filler& wheel::operator ()()
+filler* wheel::me()
 {
-	return *focus->object;
+	return focus->object;
 }
 
 wheel::operator int()
@@ -175,7 +177,51 @@ void wheel::swap(unsigned int first, unsigned int second = 0)
 
 void wheel::tile(Display* display, int layout, geom coord) 
 {
-	
+	int i;
+	int h = coord.y2 - coord.y1;
+	int w = coord.x2 - coord.x1;
+
+	arch* aux = master;
+	if (!master->object->is_shown)
+					master->object->show();
+
+	if (shown >= 5)
+	{
+		master->object->tile(display, layout, 
+					geom(coord.x1,coord.y1, (int)(0.5*coord.x2), (int)(coord.y2)));	
+		
+		for (i = 0; i < shown - 1; i++) 
+		{
+				aux = aux->next;
+				aux->object->tile(display, layout,
+					geom((int) i*((double) coord.x1 + w*0.5), 
+									coord.y1, 
+									coord.x2, 
+								(int) (i+1)*((double) coord.y1 + h*(1/(shown-1)))));
+		}
+	}	
+	else
+	{
+		for (i = 0; i < shown; i++)
+		{
+			aux->object->tile(display, layout,
+						geom((int) coord.x1 + w*bar[shown][layout][i][1], 
+								 (int) coord.y1 + h*bar[shown][layout][i][2],
+								 (int) coord.x1 + w*bar[shown][layout][i][3],
+								 (int) coord.y1 + h*bar[shown][layout][i][4]	));
+
+			aux = aux->next;
+		}
+	}
+}
+
+void wheel::suicide()
+{
+	for (int i = 0; i < count; i++)
+	{
+					me()->suicide();
+					delete (-(*this));
+	}
 }
 
 //template<class filler>
@@ -203,7 +249,7 @@ void filler::make_me_your_master(wheel* please)
 //класс window
 window::window(Display* disp, Window* win)
 {
-	char** returned;
+	char** returned = 0;
 	w = win;
 	display = disp;
 	if (XFetchName(display, *win, returned))
@@ -224,14 +270,14 @@ window::~window()
 	delete[] name;
 }
 
-void window::tile(int layout, geom coord) 
+void window::tile(Display* display, int layout, geom coord) 
 {
-	XMoveResizeWindow(display, *w, coord.x, coord.y, coord.w, coord.h);		
+	XMoveResizeWindow(display, *w, coord.x1, coord.y1, coord.x2, coord.y2);		
 }
 
 void window::hide()
 {
-	is_shown = false;
+  is_shown = false;
 	XUnmapWindow(display, *w);
 }
 
@@ -239,6 +285,16 @@ void window::show()
 {
 	is_shown = true;
 	XMapWindow(display, *w);
+}
+
+void window::suicide()
+{
+	XKillClient(display, *w);
+}
+
+void group::suicide()
+{
+	wheel_of_windows->suicide();
 }
 
 workspace::workspace()

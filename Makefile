@@ -1,12 +1,24 @@
-GXX = g++
-CFLAGS = -g -lX11 
+CXX = g++
+CFLAGS = -Wall -g -lX11
 
-architecture.o: architecture.cpp khawm.hpp architecture.hpp
-	$(GXX) $(CFLAGS) -c architecture.cpp -o architecture.o	
-windowmanager.o: windowmanager.cpp khawm.hpp windowmanager.hpp architecture.hpp 
-	$(GXX) $(CFLAGS) -c windowmanager.cpp -o windowmanager.o	
-khawm: main.cpp architecture.o windowmanager.o
-	$(GXX) $(CFLAGS) main.cpp architecture.o windowmanager.o -o khawm
+SRCS = windowmanager.cpp architecture.cpp  
+OBJS = $(SRCS:.cpp=.o)
+
+default: khawm
+
+%.o: %.cpp %.hpp 
+	$(CXX) $(CFLAGS) -c $< -o $@
+
+khawm: main.cpp $(OBJS)
+	$(CXX) $(CFLAGS) $^ -o $@
+
+ifneq (clean, $(MAKECMDGOALS))
+-include deps.mk
+endif
+
+deps.mk: $(SRCS) 
+	$(CXX) -MM $^ > $@
+
 run: khawm
 	./khawm
 clean:

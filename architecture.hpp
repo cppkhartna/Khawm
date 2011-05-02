@@ -4,22 +4,15 @@ struct geom
 {
 	geom(unsigned v_x, unsigned v_y, unsigned v_w, unsigned v_h)
 	{
-		x = v_x;
-		y = v_y;
-		w = v_w;
-		h = v_h;
+		x1 = v_x;
+		y1 = v_y;
+		x2 = v_w;
+		y2 = v_h;
 	}
-	unsigned int x;
-	unsigned int y;
-	unsigned int w;
-	unsigned int h;
-};
-
-class layout 
-{
-public:
-	layout ();
-	~layout ();
+	unsigned int x1;
+	unsigned int y1;
+	unsigned int x2;
+	unsigned int y2;
 };
 
 class wheel;
@@ -35,6 +28,8 @@ public:
   virtual	void tile(Display* display, int layout, geom coord) = 0;
 	virtual void show() = 0;
 	virtual void hide() = 0;
+	bool is_shown;
+	virtual void suicide() = 0;
 };
 
 class wheel 
@@ -71,7 +66,7 @@ public:
 	void operator++(); //фокусирует дугу справа
 	void operator--(); //фокусирует дугу слева
 	filler* operator[](unsigned int i); // фокусирует конкретную дугу, считая от мастера
-	filler& operator()(); // доступ к объекту фокуса
+	filler* me(); // доступ к объекту фокуса
 	operator int(); //возвращает номер фокуса
 	
 	void operator++(int); //меняет местами фокус и правую дугу
@@ -80,6 +75,7 @@ public:
 	void swap(unsigned int first, unsigned int second);//меняет местами две дуги
 	void tile(Display* display, int layout, geom coord); 
 	//void checktree(Window* row, int n);
+	void suicide();
 
 };
 
@@ -100,11 +96,12 @@ public:
 	void show();
 	void hide();
 
-	virtual void tile(int layout, geom coord); 
+	virtual void tile(Display* display, int layout, geom coord); 
+	void suicide();
 
 private:
 	window() {};
-	virtual wheel* windows() {}; 
+	virtual wheel* windows() {return 0;}; 
 };
 
 class group : public window
@@ -120,6 +117,7 @@ public:
 	void show() {};
 	void hide() {};
 	void tile(Display* display, int layout, geom coord); 
+	void suicide();
 };
 
 class workspace : public filler
@@ -137,4 +135,5 @@ public:
 private:
 	void show() {};
 	void hide() {};
+	void suicide() {};
 };

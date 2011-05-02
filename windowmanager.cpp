@@ -1,4 +1,5 @@
 //Khartikova
+//
 #include "khawm.hpp"
 #include "windowmanager.hpp"
 #include "config.hpp"
@@ -17,7 +18,7 @@ windowmanager::windowmanager()
 		*workspaces += (workspace*)(new workspace);		
 	}
 
-	current = (*workspaces)().windows();
+	current = workspaces->me()->windows();
 
 	//Loop();
 
@@ -51,6 +52,7 @@ int windowmanager::Loop()
 	{
 		//gettree();
 
+		current->tile(display, 1, *coord);
 
 		XNextEvent(display, &xev);
 		switch (xev.type)
@@ -62,17 +64,27 @@ int windowmanager::Loop()
 	
 	}
 				
+	return 0;
 }
 
 void windowmanager::KeyEvents(XEvent *xev)
 {
-  //KeySym ks;
-	//ks = XKeycodeToKeysym(display, xev->xkey.keycode,0);
-	
-	//switch (ks)
-	//{
-		//case 
-	//}
+	KeySym ks;
+	ks = XKeycodeToKeysym(display, xev->xkey.keycode,0);
+
+	switch (ks)
+	{
+		case XK_c:
+		{
+				current->me()->suicide();
+				delete (-(*current));
+		}	
+		default:
+		{
+			//if (fork) 
+				//execvp()
+		}
+	}
 
 }
 
