@@ -262,6 +262,7 @@ window::window(Display* disp, Window* win)
 		name = new char[8];
 	  strcpy(name, "NO_NAME");
 	}
+	is_shown = true;
 }
 
 window::~window()
@@ -292,10 +293,42 @@ void window::suicide()
 	XKillClient(display, *w);
 }
 
+void window::update_focus()
+{
+	XSetInputFocus(display, *w, RevertToNone, CurrentTime);
+}
+
+bool window::find(Window* win)
+{
+	return (w == win);
+}
+
+bool group::find(Window* win)
+{
+	return wheel_of_windows->find(win);
+}
+
+bool wheel::find(Window* win)
+{
+	for (int i = 0; i < count; i++)
+	{
+		if ((*this)[i]->find(win))
+			return true;
+	}
+	return false;
+}
+
+
 void group::suicide()
 {
 	wheel_of_windows->suicide();
 }
+
+void group::update_focus()
+{
+	//ничего не делать
+}
+
 
 workspace::workspace()
 {
@@ -307,7 +340,7 @@ workspace::~workspace()
 	delete wheel_of_windows; 
 }
 
-void workspace::tile(Display* display, int layout, geom coord)
+wheel* workspace::windows() 
 {
-
+	return wheel_of_windows;
 }

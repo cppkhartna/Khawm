@@ -3,6 +3,7 @@
 #include "khawm.hpp"
 #include "windowmanager.hpp"
 #include "config.hpp"
+#include <iostream>
 
 windowmanager::windowmanager()
 {
@@ -20,13 +21,13 @@ windowmanager::windowmanager()
 
 	current = workspaces->me()->windows();
 
-	//Loop();
+	Loop();
 
 }
 
-void windowmanager::update_focus(Display* display, Window w)
+void windowmanager::update_focus()
 {
-	XSetInputFocus(display, w, RevertToNone, CurrentTime);
+		current->me()->update_focus();
 }
 
 
@@ -51,10 +52,13 @@ int windowmanager::Loop()
 	for (;;)
 	{
 		//gettree();
+		//update_focus();
+		//current->tile(display, 1, *coord);
 
-		current->tile(display, 1, *coord);
+using namespace std;
 
 		XNextEvent(display, &xev);
+		cout << 3;
 		switch (xev.type)
 		{
 			case KeyPress:
@@ -78,26 +82,74 @@ void windowmanager::KeyEvents(XEvent *xev)
 		{
 				current->me()->suicide();
 				delete (-(*current));
+				break;
 		}	
+		case XK_Right:
+		{
+			current++;
+			break;
+		}
+		case XK_Left:
+		{
+			current--;
+			break;
+		}
+		case XK_Page_Up:
+		{
+			workspaces++;
+			current = workspaces->me()->windows();
+			break;
+		}
+		case XK_Page_Down:
+		{
+			workspaces--;
+			current = workspaces->me()->windows();
+			break;
+		}
+		case XK_Home:
+		{
+			--current;
+			break;
+		}
+		case XK_End:
+		{
+			++current;
+			break;
+		}
 		default:
 		{
-			//if (fork) 
-				//execvp()
+			for (int j = 0; j < key_number; j++)
+			{
+				if (ks == keyboard[j].key)
+				{
+					if (!fork())
+							execlp(keyboard[j].cmd, keyboard[j].cmd, (char*) 0);
+					else break;
+				}
+			}
 		}
 	}
 
 }
 
-//void windowmanager::gettree()
-//{
-	//Window root_return, parent_return, *children;
-	//unsigned int n;
-	//XQueryTree(display, root, &root_return, &parent_return, &children, &n);
-
-	//aux = workspaces->focus
-  //for (int i = 0; i < n ; i++)
-	//{
-		//children
-	//}
-
-//}	
+void windowmanager::gettree()
+{
+	Window root_return, parent_return, *children;
+	unsigned int n;
+	unsigned int i;
+	int j;
+	bool flag;
+	XQueryTree(display, root, &root_return, &parent_return, &children, &n);
+	for (i = 0; i < n ; i++)
+	{
+		flag = false;
+		for (j = 0; j < ndesktops; j++)
+		{
+		  if (workspaces[j].me()->find(children))
+					flag = true;
+		}
+		if (!flag)
+			current->me()->windows()->operator+(*children);
+		children++;
+	}
+}	

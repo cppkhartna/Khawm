@@ -1,5 +1,4 @@
 //Khartikova
-#include <iostream>
 #include "khawm.hpp"
 #include "windowmanager.hpp"
 
@@ -9,7 +8,7 @@ int main(int argc, char *argv[])
 {
 	windowmanager wm;
 	//if (fork())
-	//
+	
 	//{
 		//sleep(2);
 	//cout << 2; 
@@ -17,10 +16,10 @@ int main(int argc, char *argv[])
 	//else
 	//{
 		//if (fork())
-		//execlp("xclock", "xclock", 0);
+		//execlp("xclock", "xclock", (char*) 0);
 		//else
-		//execlp("xclock", "xclock", 0);
+		//execlp("xclock", "xclock", (char*) 0);
 	//}
-	return 0;
+	//return 0;
 }
 

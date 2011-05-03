@@ -14,6 +14,6 @@ public:
 	~windowmanager ();
   int Loop();
 	void KeyEvents(XEvent *xev);
-	//void gettree();
-	void update_focus(Display* display, Window w);
+	void gettree();
+	void update_focus();
 };

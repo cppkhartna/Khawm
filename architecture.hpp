@@ -29,7 +29,9 @@ public:
 	virtual void show() = 0;
 	virtual void hide() = 0;
 	bool is_shown;
+	virtual void update_focus() = 0;	
 	virtual void suicide() = 0;
+	virtual bool find(Window* win) = 0;
 };
 
 class wheel 
@@ -76,6 +78,7 @@ public:
 	void tile(Display* display, int layout, geom coord); 
 	//void checktree(Window* row, int n);
 	void suicide();
+	bool find(Window* win);
 
 };
 
@@ -87,6 +90,7 @@ class window : public filler
 	bool is_shown;
 
 public:
+
 	window (Display* disp, Window* win);
 	~window ();
 	
@@ -98,6 +102,8 @@ public:
 
 	virtual void tile(Display* display, int layout, geom coord); 
 	void suicide();
+	void update_focus();	
+	bool find(Window* win);
 
 private:
 	window() {};
@@ -109,6 +115,7 @@ class group : public window
 	bool is_shown;
 	wheel* wheel_of_windows;
 public:
+
  	group ();
 	~group ();
 	virtual wheel* windows() {return wheel_of_windows;};
@@ -118,6 +125,8 @@ public:
 	void hide() {};
 	void tile(Display* display, int layout, geom coord); 
 	void suicide();
+	void update_focus();	
+	bool find(Window* win);
 };
 
 class workspace : public filler
@@ -129,11 +138,13 @@ public:
 	~workspace ();
 	
 	void make_me_your_master(wheel* please);
-	virtual wheel* windows() {return wheel_of_windows;};
-	void tile(Display* display, int layout, geom coord);
+	virtual wheel* windows();
 
 private:
 	void show() {};
 	void hide() {};
 	void suicide() {};
+	void update_focus() {};
+	bool find(Window* win) {return 0;};
+	void tile(Display* display, int layout, geom coord) {};
 };
