@@ -125,8 +125,12 @@ void wheel::operator --()
 filler* wheel::operator [](unsigned int i)
 {
 //	отсчёт ведётся вправо
+	
+	if (!count)
+		return 0;
 	arch* aux;
 	aux = master;	
+
 	for (unsigned int j = 0; j < i; j++) 
 	{
 		aux = master->next;	
@@ -137,7 +141,9 @@ filler* wheel::operator [](unsigned int i)
 
 filler* wheel::me()
 {
-	return focus->object;
+	if (count != 0)
+		return focus->object;
+	else return 0;
 }
 
 wheel::operator int()
@@ -290,7 +296,7 @@ void window::show()
 
 void window::suicide()
 {
-	XKillClient(display, *w);
+	XKillCl(childrendisplay, *w);
 }
 
 void window::update_focus()

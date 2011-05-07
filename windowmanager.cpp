@@ -27,7 +27,8 @@ windowmanager::windowmanager()
 
 void windowmanager::update_focus()
 {
-		current->me()->update_focus();
+		if (current->me() != 0)
+			current->me()->update_focus();
 }
 
 
@@ -51,11 +52,9 @@ int windowmanager::Loop()
 
 	for (;;)
 	{
-		//gettree();
-		//update_focus();
+		gettree();
 		//current->tile(display, 1, *coord);
 
-using namespace std;
 
 		XNextEvent(display, &xev);
 		cout << 3;
@@ -65,6 +64,8 @@ using namespace std;
 				KeyEvents(&xev);
 			break;
 		}
+
+		update_focus();
 	
 	}
 				
@@ -134,22 +135,25 @@ void windowmanager::KeyEvents(XEvent *xev)
 
 void windowmanager::gettree()
 {
-	Window root_return, parent_return, *children;
+	Window root_return, parent_return, *children, *save_children_of_uganda;
 	unsigned int n;
 	unsigned int i;
-	int j;
-	bool flag;
+	//int j;
+	//bool flag;
 	XQueryTree(display, root, &root_return, &parent_return, &children, &n);
+	save_children_of_uganda = children;
 	for (i = 0; i < n ; i++)
 	{
-		flag = false;
-		for (j = 0; j < ndesktops; j++)
-		{
-		  if (workspaces[j].me()->find(children))
-					flag = true;
-		}
-		if (!flag)
-			current->me()->windows()->operator+(*children);
-		children++;
+		//flag = false;
+		//for (j = 0; j < ndesktops; j++)
+		//{
+			//if (workspaces[j].find(children))
+					//flag = true;
+		//}
+		//if (!flag)
+			current += (*children);
+		children--;
 	}
+	children = save_children_of_uganda;
+	XFree(children);
 }	
