@@ -66,6 +66,8 @@ wheel* wheel::operator+=(filler* obj)
 		aux->next = focus->next;
 		focus->next = aux;
 		aux->prev = focus;
+		if (count == 1)
+				focus->prev = aux;
 	}
 	else master = aux;
 	focus = aux;
@@ -255,13 +257,16 @@ void filler::make_me_your_master(wheel* please)
 //класс window
 window::window(Display* disp, Window* win)
 {
-	char** returned = 0;
+	using namespace std; //memcpy problem
+	
+	char* returned;
 	w = win;
 	display = disp;
-	if (XFetchName(display, *win, returned))
+	if (XFetchName(display, *win, &returned))
 	{
-		name = new char[strlen(*returned)+1];
-		strcpy(name, *returned);
+		name = new char[strlen(returned)+1];
+		strcpy(name, returned);
+		XFree(returned);
 	}
 	else 
 	{
@@ -296,12 +301,12 @@ void window::show()
 
 void window::suicide()
 {
-	XKillCl(childrendisplay, *w);
+	XKillClient(display, *w);
 }
 
 void window::update_focus()
 {
-	XSetInputFocus(display, *w, RevertToNone, CurrentTime);
+	//XSetInputFocus(display, *w, RevertToNone, CurrentTime);
 }
 
 bool window::find(Window* win)

@@ -57,7 +57,6 @@ int windowmanager::Loop()
 
 
 		XNextEvent(display, &xev);
-		cout << 3;
 		switch (xev.type)
 		{
 			case KeyPress:
@@ -135,12 +134,15 @@ void windowmanager::KeyEvents(XEvent *xev)
 
 void windowmanager::gettree()
 {
-	Window root_return, parent_return, *children, *save_children_of_uganda;
+	using namespace std;
+	Window root_return, parent_return, **children, **save_children_of_uganda;
 	unsigned int n;
 	unsigned int i;
+	//int k = 0;
+	XWindowAttributes xattr;
 	//int j;
 	//bool flag;
-	XQueryTree(display, root, &root_return, &parent_return, &children, &n);
+	XQueryTree(display, root, &root_return, &parent_return, children, &n);
 	save_children_of_uganda = children;
 	for (i = 0; i < n ; i++)
 	{
@@ -151,9 +153,12 @@ void windowmanager::gettree()
 					//flag = true;
 		//}
 		//if (!flag)
-			current += (*children);
-		children--;
+			if (XGetWindowAttributes(display, **children, &xattr) != 0) 
+				if (!xattr.override_redirect && xattr.map_state == IsViewable);
+					current->operator+=((window*)(new window(display, *children)));
+		children++;
 	}
 	children = save_children_of_uganda;
-	XFree(children);
+	if (children != 0)
+					XFree(children);
 }	
