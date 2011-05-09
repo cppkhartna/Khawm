@@ -22,37 +22,38 @@ class filler
 public:
 	filler () {};
 	virtual ~filler () {};
+
 	void make_me_your_master(wheel* please);
-	
+
 	virtual wheel* windows() = 0;
   virtual	void tile(Display* display, int layout, geom coord) = 0;
 	virtual void show() = 0;
 	virtual void hide() = 0;
-	bool is_shown;
 	virtual void update_focus() = 0;	
 	virtual void suicide() = 0;
-	virtual bool find(Window* win) = 0;
+	virtual bool find(Window win) = 0;
 };
 
-class wheel 
+class wheel : public filler 
 {
 	struct arch
 	{
 		arch* next;
 		arch* prev;
 		filler* object;
+	  bool found;
 		arch(filler* obj) 
 		{
 			next = this;
 			prev = this;
 			object = obj;			
+			found = false;
 		};
 	};
     
 	void move(int dir);
 				
 	int count;
-	int shown;
   arch* master;
   arch* focus;
 
@@ -61,8 +62,6 @@ public:
 	virtual ~wheel ();
 	void rotate(int dir); // сдвигает все окна
 	wheel* operator+=(filler* obj); // добавляет объект в колесо
-	void operator-(int); //  вычитает число свежесвёрнутых окон 
-	void operator+(int); // добавляет число свежесвёрнутых окон 
 	filler* operator-(); // достаёт объект фокуса из колеса
 	
 	void operator++(); //фокусирует дугу справа
@@ -78,20 +77,27 @@ public:
 	void tile(Display* display, int layout, geom coord); 
 	//void checktree(Window* row, int n);
 	void suicide();
-	bool find(Window* win);
+	bool find(Window win);
+	void clean();
+	void show();
+	void hide();
+
+private:
+	virtual wheel* windows(){return 0;};
+	virtual void update_focus(){};	
+
 
 };
 
 class window : public filler 
 {
-  Window* w;
+  Window w;
 	Display* display;
 	char *name;
-	bool is_shown;
 
 public:
 
-	window (Display* disp, Window* win);
+	window (Display* disp, Window win);
 	~window ();
 	
 	void make_me_your_master(wheel* please);
@@ -103,48 +109,30 @@ public:
 	virtual void tile(Display* display, int layout, geom coord); 
 	void suicide();
 	void update_focus();	
-	bool find(Window* win);
+	bool find(Window win);
 
 private:
 	window() {};
 	virtual wheel* windows() {return 0;}; 
 };
 
-class group : public window
-{
-	bool is_shown;
-	wheel* wheel_of_windows;
-public:
-
- 	group ();
-	~group ();
-	virtual wheel* windows() {return wheel_of_windows;};
-	void make_me_your_master(wheel* please);
-
-	void show() {};
-	void hide() {};
-	void tile(Display* display, int layout, geom coord); 
-	void suicide();
-	void update_focus();	
-	bool find(Window* win);
-};
-
 class workspace : public filler
 {
 	char* name;
-  wheel* wheel_of_windows;	
+	wheel* wheel_of_windows;
 public:
 	workspace ();
 	~workspace ();
+
+  wheel* windows();	
 	
 	void make_me_your_master(wheel* please);
-	virtual wheel* windows();
 
 private:
+  void tile(Display* display, int layout, geom coord){};
 	void show() {};
 	void hide() {};
+	void update_focus() {};	
 	void suicide() {};
-	void update_focus() {};
-	bool find(Window* win) {return 0;};
-	void tile(Display* display, int layout, geom coord) {};
+	bool find(Window win) {return 0;};
 };

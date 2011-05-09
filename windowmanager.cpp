@@ -96,8 +96,10 @@ void windowmanager::KeyEvents(XEvent *xev)
 		}
 		case XK_Page_Up:
 		{
+			//current->hide();
 			workspaces++;
 			current = workspaces->me()->windows();
+			//current->show();
 			break;
 		}
 		case XK_Page_Down:
@@ -135,14 +137,13 @@ void windowmanager::KeyEvents(XEvent *xev)
 void windowmanager::gettree()
 {
 	using namespace std;
-	Window root_return, parent_return, **children, **save_children_of_uganda;
+	Window root_return, parent_return, *children, *save_children_of_uganda;
 	unsigned int n;
 	unsigned int i;
-	//int k = 0;
 	XWindowAttributes xattr;
 	//int j;
 	//bool flag;
-	XQueryTree(display, root, &root_return, &parent_return, children, &n);
+	XQueryTree(display, root, &root_return, &parent_return, &children, &n);
 	save_children_of_uganda = children;
 	for (i = 0; i < n ; i++)
 	{
@@ -153,12 +154,10 @@ void windowmanager::gettree()
 					//flag = true;
 		//}
 		//if (!flag)
-			if (XGetWindowAttributes(display, **children, &xattr) != 0) 
-				if (!xattr.override_redirect && xattr.map_state == IsViewable);
-					current->operator+=((window*)(new window(display, *children)));
-		children++;
+			if (XGetWindowAttributes(display, children[i], &xattr) != 0) 
+				if (!xattr.override_redirect && xattr.map_state == IsViewable)
+					current->operator+=((window*)(new window(display, children[i])));
 	}
 	children = save_children_of_uganda;
-	if (children != 0)
-					XFree(children);
+	XFree(children);
 }	

@@ -30,7 +30,7 @@ wheel::wheel()
 	focus  = 0; 
 	master = 0;
 	count  = 0;
-	shown  = 0;
+	//shown  = 0;
 }
 
 wheel::~wheel()
@@ -104,15 +104,15 @@ filler* wheel::operator-()
 	return aux;
 }
 
-void wheel::operator-(int x)
-{
-	shown -= x;
-}
+//void wheel::operator-(int x)
+//{
+	//shown -= x;
+//}
 
-void wheel::operator+(int x)
-{
-	shown += x;
-}
+//void wheel::operator+(int x)
+//{
+	//shown += x;
+//}
 
 void wheel::operator ++()
 {
@@ -190,33 +190,31 @@ void wheel::tile(Display* display, int layout, geom coord)
 	int w = coord.x2 - coord.x1;
 
 	arch* aux = master;
-	if (!master->object->is_shown)
-					master->object->show();
 
-	if (shown >= 5)
+	if (count >= 5)
 	{
 		master->object->tile(display, layout, 
 					geom(coord.x1,coord.y1, (int)(0.5*coord.x2), (int)(coord.y2)));	
 		
-		for (i = 0; i < shown - 1; i++) 
+		for (i = 0; i < count - 1; i++) 
 		{
 				aux = aux->next;
 				aux->object->tile(display, layout,
 					geom((int) i*((double) coord.x1 + w*0.5), 
 									coord.y1, 
 									coord.x2, 
-								(int) (i+1)*((double) coord.y1 + h*(1/(shown-1)))));
+								(int) (i+1)*((double) coord.y1 + h*(1/(count-1)))));
 		}
 	}	
 	else
 	{
-		for (i = 0; i < shown; i++)
+		for (i = 0; i < count; i++)
 		{
 			aux->object->tile(display, layout,
-						geom((int) coord.x1 + w*bar[shown][layout][i][1], 
-								 (int) coord.y1 + h*bar[shown][layout][i][2],
-								 (int) coord.x1 + w*bar[shown][layout][i][3],
-								 (int) coord.y1 + h*bar[shown][layout][i][4]	));
+						geom((int) coord.x1 + w*bar[count][layout][i][1], 
+								 (int) coord.y1 + h*bar[count][layout][i][2],
+								 (int) coord.x1 + w*bar[count][layout][i][3],
+								 (int) coord.y1 + h*bar[count][layout][i][4]	));
 
 			aux = aux->next;
 		}
@@ -232,22 +230,6 @@ void wheel::suicide()
 	}
 }
 
-//template<class filler>
-//void wheel::checktree(Window* row, int n)
-//{		
-	//for (int i = 0; i < count; i++)
-	//{
-		//for (int j = 0; j < n; j++)
-		//{
-				//u
-		//}
-		//`<...>`
-		//this[i] = 0;	
-	//}
-	
-//}   посмотри потом, может, сделать для перезагрузки, а пока попробуй
-	 //Notify
-
 //базовый класс filler
 void filler::make_me_your_master(wheel* please)
 {
@@ -255,25 +237,24 @@ void filler::make_me_your_master(wheel* please)
 }
 
 //класс window
-window::window(Display* disp, Window* win)
+window::window(Display* disp, Window win)
 {
 	using namespace std; //memcpy problem
 	
 	char* returned;
 	w = win;
 	display = disp;
-	if (XFetchName(display, *win, &returned))
+	if (XFetchName(display, win, &returned))
 	{
 		name = new char[strlen(returned)+1];
 		strcpy(name, returned);
-		XFree(returned);
 	}
 	else 
 	{
 		name = new char[8];
 	  strcpy(name, "NO_NAME");
 	}
-	is_shown = true;
+	XFree(returned);
 }
 
 window::~window()
@@ -284,61 +265,93 @@ window::~window()
 
 void window::tile(Display* display, int layout, geom coord) 
 {
-	XMoveResizeWindow(display, *w, coord.x1, coord.y1, coord.x2, coord.y2);		
+	XMoveResizeWindow(display, w, coord.x1, coord.y1, coord.x2, coord.y2);		
 }
 
 void window::hide()
 {
-  is_shown = false;
-	XUnmapWindow(display, *w);
+	XUnmapWindow(display, w);
 }
 
 void window::show()
 {
-	is_shown = true;
-	XMapWindow(display, *w);
+	XMapWindow(display, w);
 }
 
 void window::suicide()
 {
-	XKillClient(display, *w);
+	XKillClient(display, w);
 }
 
 void window::update_focus()
 {
-	//XSetInputFocus(display, *w, RevertToNone, CurrentTime);
+	XSetInputFocus(display, w, RevertToNone, CurrentTime);
 }
 
-bool window::find(Window* win)
+bool window::find(Window win)
 {
 	return (w == win);
 }
 
-bool group::find(Window* win)
-{
-	return wheel_of_windows->find(win);
-}
+//bool group::find(Window* win)
+//{
+	//return wheel_of_windows->find(win);
+//}
 
-bool wheel::find(Window* win)
+bool wheel::find(Window win)
 {
+	bool q = false;
+	arch* aux = this->focus;
+
 	for (int i = 0; i < count; i++)
 	{
 		if ((*this)[i]->find(win))
-			return true;
+		{
+			aux->found = true;		
+			q = true;
+		}
+		aux = aux->next;
 	}
-	return false;
+	return q;
 }
 
-
-void group::suicide()
+void wheel::clean()
 {
-	wheel_of_windows->suicide();
+	arch* aux = this -> focus;
+	arch* next;
+
+	for (int i = 0; i < count; i++)
+	{ 
+		next = aux->next;
+		if (aux->found == false)		
+		{
+				focus = aux;
+				me()->suicide();
+				delete (-(*this));
+		}
+		aux = next;
+	}
+
 }
 
-void group::update_focus()
+void wheel::show()
 {
+	
+}
+void wheel::hide()
+{
+	
+}
+
+//void group::suicide()
+//{
+	//wheel_of_windows->suicide();
+//}
+
+//void group::update_focus()
+//{
 	//ничего не делать
-}
+//}
 
 
 workspace::workspace()
