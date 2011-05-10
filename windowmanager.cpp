@@ -52,20 +52,19 @@ int windowmanager::Loop()
 
 	for (;;)
 	{
+		current->fake();
+
 		gettree();
-		//current->tile(display, 1, *coord);
 
+		current->clean();
 
-		XNextEvent(display, &xev);
-		switch (xev.type)
-		{
-			case KeyPress:
-				KeyEvents(&xev);
-			break;
-		}
+		current->tile(display, 0, *coord);
 
 		update_focus();
-	
+
+		if (XCheckTypedEvent(display, KeyPress, &xev))
+						KeyEvents(&xev);
+
 	}
 				
 	return 0;
@@ -75,47 +74,81 @@ void windowmanager::KeyEvents(XEvent *xev)
 {
 	KeySym ks;
 	ks = XKeycodeToKeysym(display, xev->xkey.keycode,0);
+	static int x = 0;
 
 	switch (ks)
 	{
 		case XK_c:
 		{
-				current->me()->suicide();
-				delete (-(*current));
-				break;
+			//current->node();
+			current->me()->suicide();
+			delete	(-(*current));
+
+			//current->node();
+			break;
 		}	
 		case XK_Right:
 		{
-			current++;
+			++(*current);
 			break;
 		}
 		case XK_Left:
 		{
-			current--;
+			--(*current);
 			break;
 		}
-		case XK_Page_Up:
+		case XK_Up:
 		{
-			//current->hide();
+			current->hide();
+
 			workspaces++;
 			current = workspaces->me()->windows();
-			//current->show();
+
+			current->show();
 			break;
 		}
-		case XK_Page_Down:
+		case XK_Down:
 		{
+			current->hide();
+
 			workspaces--;
 			current = workspaces->me()->windows();
+
+			current->show();
 			break;
 		}
 		case XK_Home:
 		{
-			--current;
+			(*current)++;
 			break;
 		}
 		case XK_End:
 		{
-			++current;
+			(*current)--;
+			break;
+		}
+		case XK_r:
+		{
+			current->rotate(RIGHT);
+			break;
+		}
+		case XK_l:
+		{
+			current->rotate(LEFT);
+			break;
+		}
+		case XK_equal:
+		{
+			x+=5;
+			//(*current)++;
+			current->be(2)->tile(display, 0, geom(0, 0, 100+x, 100+x));
+			break;
+		}
+		case XK_minus:
+		{
+			x+=5;
+			//(*current)--;
+			current->be(1)->tile(display, 0, geom(0, 0, 200+x, 200+x));
 			break;
 		}
 		default:
@@ -124,8 +157,10 @@ void windowmanager::KeyEvents(XEvent *xev)
 			{
 				if (ks == keyboard[j].key)
 				{
-					if (!fork())
+					if (*(keyboard[j].cmd) != ':') 
+						if (!fork())
 							execlp(keyboard[j].cmd, keyboard[j].cmd, (char*) 0);
+						else break; 
 					else break;
 				}
 			}
@@ -141,23 +176,18 @@ void windowmanager::gettree()
 	unsigned int n;
 	unsigned int i;
 	XWindowAttributes xattr;
-	//int j;
-	//bool flag;
+
 	XQueryTree(display, root, &root_return, &parent_return, &children, &n);
 	save_children_of_uganda = children;
 	for (i = 0; i < n ; i++)
 	{
-		//flag = false;
-		//for (j = 0; j < ndesktops; j++)
-		//{
-			//if (workspaces[j].find(children))
-					//flag = true;
-		//}
-		//if (!flag)
-			if (XGetWindowAttributes(display, children[i], &xattr) != 0) 
-				if (!xattr.override_redirect && xattr.map_state == IsViewable)
+		if (XGetWindowAttributes(display, children[i], &xattr) != 0) 
+			if (!xattr.override_redirect && xattr.map_state == IsViewable)
+				if (!current->find(children[i]))
 					current->operator+=((window*)(new window(display, children[i])));
 	}
+
+	current->node();
 	children = save_children_of_uganda;
 	XFree(children);
 }	

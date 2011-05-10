@@ -4,15 +4,16 @@ struct geom
 {
 	geom(unsigned v_x, unsigned v_y, unsigned v_w, unsigned v_h)
 	{
-		x1 = v_x;
-		y1 = v_y;
-		x2 = v_w;
-		y2 = v_h;
+		x = v_x;
+		y = v_y;
+		w = v_w;
+		h = v_h;
 	}
-	unsigned int x1;
-	unsigned int y1;
-	unsigned int x2;
-	unsigned int y2;
+
+	unsigned int x;
+	unsigned int y;
+	unsigned int w;
+	unsigned int h;
 };
 
 class wheel;
@@ -32,6 +33,8 @@ public:
 	virtual void update_focus() = 0;	
 	virtual void suicide() = 0;
 	virtual bool find(Window win) = 0;
+
+	virtual Window get() = 0;
 };
 
 class wheel : public filler 
@@ -47,7 +50,7 @@ class wheel : public filler
 			next = this;
 			prev = this;
 			object = obj;			
-			found = false;
+			found = true;
 		};
 	};
     
@@ -75,16 +78,23 @@ public:
 
 	void swap(unsigned int first, unsigned int second);//меняет местами две дуги
 	void tile(Display* display, int layout, geom coord); 
-	//void checktree(Window* row, int n);
+
 	void suicide();
+
 	bool find(Window win);
 	void clean();
+	void fake();
+
 	void show();
 	void hide();
+	filler* be(int i);
+
+	void node();
 
 private:
 	virtual wheel* windows(){return 0;};
 	virtual void update_focus(){};	
+	Window get(){return 0;};
 
 
 };
@@ -111,6 +121,8 @@ public:
 	void update_focus();	
 	bool find(Window win);
 
+	Window get() {return w;}
+
 private:
 	window() {};
 	virtual wheel* windows() {return 0;}; 
@@ -135,4 +147,5 @@ private:
 	void update_focus() {};	
 	void suicide() {};
 	bool find(Window win) {return 0;};
+	Window get() {return 0;};
 };

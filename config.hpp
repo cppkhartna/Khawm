@@ -6,15 +6,13 @@ struct keybind
 	const char* cmd;
 };
 
-const int key_number = 16;
+const int key_number = 18;
 
 keybind keyboard[key_number] = {
 	  {Mod4Mask, XK_Right, ":next"}
 	, {Mod4Mask, XK_Left, ":prev"}
-	, {Mod4Mask, XK_Up, ":up"}
-	, {Mod4Mask, XK_Down, ":down"}
-	, {Mod4Mask, XK_Page_Up, ":deskn"}
-	, {Mod4Mask, XK_Page_Down, ":deskp"}
+	, {Mod4Mask, XK_Up, ":deskn"}
+	, {Mod4Mask, XK_Down, ":deskp"}
 	, {Mod4Mask, XK_Home, ":swapp"}
 	, {Mod4Mask, XK_End, ":swapn"}
 	, {Mod4Mask, XK_c, ":kill"}
@@ -24,8 +22,20 @@ keybind keyboard[key_number] = {
 	, {Mod4Mask, XK_f, "thunar"}
 	, {Mod4Mask, XK_q, ":quit"}
 	, {Mod4Mask, XK_Return, "xfce4-terminal"}
+	, {Mod4Mask, XK_r, ":rotate RIGHT"}
+	, {Mod4Mask, XK_l, ":rotate LEFT"}
 	, {Mod4Mask, XK_x, "xclock"}
+	, {Mod4Mask, XK_equal, ":resize +"}
+	, {Mod4Mask, XK_minus, ":resize -"}
 
 };
 
-int ndesktops = 4;
+const int ndesktops = 4;
+
+const char* desktop_names[ndesktops] = {
+		"1:com",
+		"2:web",
+		"3:jab",
+		"4:dev"
+};
+

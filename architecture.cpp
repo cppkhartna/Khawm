@@ -4,6 +4,10 @@
 #include "bar.hpp"
 #include <cstring>
 
+const int max_node = 20;
+unsigned long arr[max_node]; 
+int node_num = 0;
+
 // класс wheel
 //
 void wheel::move(int dir)
@@ -30,7 +34,6 @@ wheel::wheel()
 	focus  = 0; 
 	master = 0;
 	count  = 0;
-	//shown  = 0;
 }
 
 wheel::~wheel()
@@ -64,10 +67,9 @@ wheel* wheel::operator+=(filler* obj)
 	if (count)
 	{
 		aux->next = focus->next;
+		focus->next->prev = aux;
 		focus->next = aux;
 		aux->prev = focus;
-		if (count == 1)
-				focus->prev = aux;
 	}
 	else master = aux;
 	focus = aux;
@@ -104,16 +106,6 @@ filler* wheel::operator-()
 	return aux;
 }
 
-//void wheel::operator-(int x)
-//{
-	//shown -= x;
-//}
-
-//void wheel::operator+(int x)
-//{
-	//shown += x;
-//}
-
 void wheel::operator ++()
 {
 	focus = focus->next;
@@ -137,8 +129,13 @@ filler* wheel::operator [](unsigned int i)
 	{
 		aux = master->next;	
 	}
-	focus = aux;
-	return focus->object;
+	//focus = aux;
+	return aux->object;
+}
+
+filler* wheel::be(int i)
+{
+	return (i == 1 ? master->object: master->next->object);
 }
 
 filler* wheel::me()
@@ -186,24 +183,26 @@ void wheel::swap(unsigned int first, unsigned int second = 0)
 void wheel::tile(Display* display, int layout, geom coord) 
 {
 	int i;
-	int h = coord.y2 - coord.y1;
-	int w = coord.x2 - coord.x1;
+	int h = coord.h;
+	int w = coord.w;
+	int x = coord.x;
+	int y = coord.y;
 
 	arch* aux = master;
 
 	if (count >= 5)
 	{
 		master->object->tile(display, layout, 
-					geom(coord.x1,coord.y1, (int)(0.5*coord.x2), (int)(coord.y2)));	
+					geom(x, y, (int)(0.5*w), h));	
 		
 		for (i = 0; i < count - 1; i++) 
 		{
 				aux = aux->next;
 				aux->object->tile(display, layout,
-					geom((int) i*((double) coord.x1 + w*0.5), 
-									coord.y1, 
-									coord.x2, 
-								(int) (i+1)*((double) coord.y1 + h*(1/(count-1)))));
+					geom((int) ((double) x + w*0.5), 
+									y + (int) (i * ( h * ((double) 1/(count-1) ))), 
+									(int) ((double) 0.5*w), 
+								(int) ((double) ((double) h/(count-1) ))));
 		}
 	}	
 	else
@@ -211,14 +210,33 @@ void wheel::tile(Display* display, int layout, geom coord)
 		for (i = 0; i < count; i++)
 		{
 			aux->object->tile(display, layout,
-						geom((int) coord.x1 + w*bar[count][layout][i][1], 
-								 (int) coord.y1 + h*bar[count][layout][i][2],
-								 (int) coord.x1 + w*bar[count][layout][i][3],
-								 (int) coord.y1 + h*bar[count][layout][i][4]	));
+						geom((int) (x + w*bar[count][layout][i][0]), 
+								 (int) (y + h*bar[count][layout][i][1]),
+								 (int) (w*bar[count][layout][i][2]),
+								 (int) (h*bar[count][layout][i][3])	));
 
 			aux = aux->next;
 		}
-	}
+	}	
+		//if (count > 0)
+						//aux->object->tile(display, layout,
+										//geom(0,0,200,200)
+										//);
+		//if (count > 1)
+		//{
+		//aux = aux->next;
+		//aux->object->tile(display, layout,
+										//geom(250,0,100,100)
+										//);
+		//}
+		//if (count > 2)
+		//{
+		//aux = aux->next;
+		//aux->object->tile(display, layout,
+										//geom(400,0,100,100)
+										//);
+		//}
+	//}
 }
 
 void wheel::suicide()
@@ -248,13 +266,13 @@ window::window(Display* disp, Window win)
 	{
 		name = new char[strlen(returned)+1];
 		strcpy(name, returned);
+		XFree(returned);
 	}
 	else 
 	{
 		name = new char[8];
 	  strcpy(name, "NO_NAME");
 	}
-	XFree(returned);
 }
 
 window::~window()
@@ -265,7 +283,7 @@ window::~window()
 
 void window::tile(Display* display, int layout, geom coord) 
 {
-	XMoveResizeWindow(display, w, coord.x1, coord.y1, coord.x2, coord.y2);		
+	XMoveResizeWindow(display, w, coord.x, coord.y, coord.w, coord.h);	
 }
 
 void window::hide()
@@ -285,7 +303,8 @@ void window::suicide()
 
 void window::update_focus()
 {
-	XSetInputFocus(display, w, RevertToNone, CurrentTime);
+	XSetInputFocus(display, w, RevertToPointerRoot, CurrentTime);
+//RevertToNone
 }
 
 bool window::find(Window win)
@@ -293,40 +312,37 @@ bool window::find(Window win)
 	return (w == win);
 }
 
-//bool group::find(Window* win)
-//{
-	//return wheel_of_windows->find(win);
-//}
-
 bool wheel::find(Window win)
 {
+	arch* aux = master;
 	bool q = false;
-	arch* aux = this->focus;
-
-	for (int i = 0; i < count; i++)
-	{
-		if ((*this)[i]->find(win))
+	do
+		if (aux != 0)
 		{
-			aux->found = true;		
-			q = true;
-		}
-		aux = aux->next;
-	}
+			if ((q = aux->object->find(win)) == true) 
+			{
+				aux->found = true;
+				break;
+			}
+			aux = aux->next;
+		}	
+	while (aux != master);	
 	return q;
 }
 
 void wheel::clean()
 {
-	arch* aux = this -> focus;
+	arch* aux = this->master;
 	arch* next;
+	int save_count(count);
 
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < save_count; i++)
 	{ 
 		next = aux->next;
 		if (aux->found == false)		
 		{
 				focus = aux;
-				me()->suicide();
+				//me()->suicide();
 				delete (-(*this));
 		}
 		aux = next;
@@ -334,25 +350,51 @@ void wheel::clean()
 
 }
 
+void wheel::fake()
+{
+	arch* aux = master;
+	if (master != 0)
+	do
+	{
+		aux->found = false;
+		aux = aux->next;
+	}
+	while (aux != master);
+}
+
 void wheel::show()
 {
-	
+	for (int i = 0; i < count; i++)
+	{
+		me()->show();
+		focus = focus->next;
+	}	
 }
 void wheel::hide()
 {
-	
+	for (int i = 0; i < count; i++)
+	{
+		me()->hide();
+		focus = focus->next;
+	}	
 }
 
-//void group::suicide()
-//{
-	//wheel_of_windows->suicide();
-//}
+void wheel::node()
+{
+	arch* aux = master;
+	node_num = 0;
+	do
+		if (aux != 0)
+		{
+			arr[node_num] = aux->object->get();
+			node_num++;
+			if (node_num >= max_node)
+				break;
+			aux = aux->next;
+		}	
+	while (aux != master);	
 
-//void group::update_focus()
-//{
-	//ничего не делать
-//}
-
+}
 
 workspace::workspace()
 {
