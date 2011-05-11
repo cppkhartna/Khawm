@@ -1,4 +1,5 @@
 #include "khawm.hpp"
+
 struct keybind
 {
 	int mask;
@@ -6,7 +7,7 @@ struct keybind
 	const char* cmd;
 };
 
-const int key_number = 18;
+const int key_number = 19;
 
 keybind keyboard[key_number] = {
 	  {Mod4Mask, XK_Right, ":next"}
@@ -27,15 +28,26 @@ keybind keyboard[key_number] = {
 	, {Mod4Mask, XK_x, "xclock"}
 	, {Mod4Mask, XK_equal, ":resize +"}
 	, {Mod4Mask, XK_minus, ":resize -"}
+	, {Mod4Mask, XK_Delete, ":dirty hack"}
+
 
 };
 
-const int ndesktops = 4;
+const int ndesktops = 5;
 
 const char* desktop_names[ndesktops] = {
 		"1:com",
 		"2:web",
 		"3:jab",
-		"4:dev"
+		"4:dev",
+		"5:float"
+};
+
+int desktop_def_layouts[ndesktops] = {
+		0,
+		0,
+		0,
+		0,
+		FLOAT
 };
 

@@ -30,3 +30,4 @@
 #define LEFT 2
 #define clockwise 2
 #define counterclockwise 1
+#define FLOAT 100

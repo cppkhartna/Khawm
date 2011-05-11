@@ -16,7 +16,7 @@ windowmanager::windowmanager()
 
 	for (int i = 0; i < ndesktops; i++)
 	{
-		*workspaces += (workspace*)(new workspace);		
+		*workspaces += (workspace*)(new workspace(i));		
 	}
 
 	current = workspaces->me()->windows();
@@ -41,6 +41,7 @@ windowmanager::~windowmanager()
 
 int windowmanager::Loop()
 {
+
 	XEvent xev;
 
 	for (int i = 0; i < key_number; i++) 
@@ -58,12 +59,25 @@ int windowmanager::Loop()
 
 		current->clean();
 
-		current->tile(display, 0, *coord);
+		current->tile(display, workspaces->me()->layout(), *coord);
 
 		update_focus();
 
-		if (XCheckTypedEvent(display, KeyPress, &xev))
-						KeyEvents(&xev);
+		//whole lotta dirty hacks
+		//though have to press smthing to make it work every time
+	
+		do
+		{
+			XNextEvent(display, &xev);
+			if (xev.type == KeyPress) 
+							XPutBackEvent(display, &xev);
+		  while (XCheckTypedEvent(display, KeyPress, &xev))
+			{
+				KeyEvents(&xev); 
+			}
+
+		}
+		while (XPending(display));
 
 	}
 				
@@ -74,17 +88,14 @@ void windowmanager::KeyEvents(XEvent *xev)
 {
 	KeySym ks;
 	ks = XKeycodeToKeysym(display, xev->xkey.keycode,0);
-	static int x = 0;
+	XWindowAttributes xattr;
 
 	switch (ks)
 	{
 		case XK_c:
 		{
-			//current->node();
 			current->me()->suicide();
 			delete	(-(*current));
-
-			//current->node();
 			break;
 		}	
 		case XK_Right:
@@ -101,7 +112,7 @@ void windowmanager::KeyEvents(XEvent *xev)
 		{
 			current->hide();
 
-			workspaces++;
+			++(*workspaces);
 			current = workspaces->me()->windows();
 
 			current->show();
@@ -111,7 +122,7 @@ void windowmanager::KeyEvents(XEvent *xev)
 		{
 			current->hide();
 
-			workspaces--;
+			--(*workspaces);
 			current = workspaces->me()->windows();
 
 			current->show();
@@ -139,16 +150,16 @@ void windowmanager::KeyEvents(XEvent *xev)
 		}
 		case XK_equal:
 		{
-			x+=5;
-			//(*current)++;
-			current->be(2)->tile(display, 0, geom(0, 0, 100+x, 100+x));
+			XGetWindowAttributes(display, current->me()->get(), &xattr);		
+			current->me()->tile(display, 0, 
+				geom(xattr.x, xattr.y, xattr.width + 5,xattr.height+5));
 			break;
 		}
 		case XK_minus:
 		{
-			x+=5;
-			//(*current)--;
-			current->be(1)->tile(display, 0, geom(0, 0, 200+x, 200+x));
+			XGetWindowAttributes(display, current->me()->get(), &xattr);		
+			current->me()->tile(display, 0, 
+				geom(xattr.x, xattr.y, xattr.width - 5,xattr.height-5));
 			break;
 		}
 		default:

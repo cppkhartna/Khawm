@@ -2,6 +2,7 @@
 #include "khawm.hpp"
 #include "architecture.hpp"
 #include "bar.hpp"
+#include "config.hpp"
 #include <cstring>
 
 const int max_node = 20;
@@ -190,53 +191,37 @@ void wheel::tile(Display* display, int layout, geom coord)
 
 	arch* aux = master;
 
-	if (count >= 5)
+	if (layout != FLOAT)
 	{
-		master->object->tile(display, layout, 
-					geom(x, y, (int)(0.5*w), h));	
-		
-		for (i = 0; i < count - 1; i++) 
+		if (count >= 5)
 		{
-				aux = aux->next;
+			master->object->tile(display, layout, 
+						geom(x, y, (int)(0.5*w), h));	
+			
+			for (i = 0; i < count - 1; i++) 
+			{
+					aux = aux->next;
+					aux->object->tile(display, layout,
+						geom((int) ((double) x + w*0.5), 
+										y + (int) (i * ( h * ((double) 1/(count-1) ))), 
+										(int) ((double) 0.5*w), 
+									(int) ((double) ((double) h/(count-1) ))));
+			}
+		}	
+		else
+		{
+			for (i = 0; i < count; i++)
+			{
 				aux->object->tile(display, layout,
-					geom((int) ((double) x + w*0.5), 
-									y + (int) (i * ( h * ((double) 1/(count-1) ))), 
-									(int) ((double) 0.5*w), 
-								(int) ((double) ((double) h/(count-1) ))));
-		}
-	}	
-	else
-	{
-		for (i = 0; i < count; i++)
-		{
-			aux->object->tile(display, layout,
-						geom((int) (x + w*bar[count][layout][i][0]), 
-								 (int) (y + h*bar[count][layout][i][1]),
-								 (int) (w*bar[count][layout][i][2]),
-								 (int) (h*bar[count][layout][i][3])	));
-
-			aux = aux->next;
-		}
-	}	
-		//if (count > 0)
-						//aux->object->tile(display, layout,
-										//geom(0,0,200,200)
-										//);
-		//if (count > 1)
-		//{
-		//aux = aux->next;
-		//aux->object->tile(display, layout,
-										//geom(250,0,100,100)
-										//);
-		//}
-		//if (count > 2)
-		//{
-		//aux = aux->next;
-		//aux->object->tile(display, layout,
-										//geom(400,0,100,100)
-										//);
-		//}
-	//}
+							geom((int) (x + w*bar[count][layout][i][0]), 
+									 (int) (y + h*bar[count][layout][i][1]),
+									 (int) (w*bar[count][layout][i][2]),
+									 (int) (h*bar[count][layout][i][3])	));
+	
+				aux = aux->next;
+			}
+		}	
+	}
 }
 
 void wheel::suicide()
@@ -303,13 +288,19 @@ void window::suicide()
 
 void window::update_focus()
 {
-	XSetInputFocus(display, w, RevertToPointerRoot, CurrentTime);
+	XSetInputFocus(display, w, RevertToParent, CurrentTime);
 //RevertToNone
+//RevertToPointerRoot
 }
 
 bool window::find(Window win)
 {
 	return (w == win);
+}
+
+Window window::get()
+{
+	return w;
 }
 
 bool wheel::find(Window win)
@@ -381,6 +372,7 @@ void wheel::hide()
 
 void wheel::node()
 {
+	//отладочная функция. Артефакт
 	arch* aux = master;
 	node_num = 0;
 	do
@@ -396,17 +388,25 @@ void wheel::node()
 
 }
 
-workspace::workspace()
+workspace::workspace(int n)
 {
 	wheel_of_windows = new wheel; 
+	name = new char[strlen(desktop_names[n])+1];
+	strcpy(name, desktop_names[n]);
 }
 
 workspace::~workspace()
 {
 	delete wheel_of_windows; 
+	delete name;
 }
 
 wheel* workspace::windows() 
 {
 	return wheel_of_windows;
+}
+
+int workspace::layout() 
+{
+	return def_layout;
 }
