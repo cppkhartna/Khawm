@@ -7,7 +7,7 @@ struct keybind
 	const char* cmd;
 };
 
-const int key_number = 19;
+const int key_number = 29;
 
 keybind keyboard[key_number] = {
 	  {Mod4Mask, XK_Right, ":next"}
@@ -22,13 +22,23 @@ keybind keyboard[key_number] = {
 	, {Mod4Mask, XK_g, "chromium-brouser"}
 	, {Mod4Mask, XK_f, "thunar"}
 	, {Mod4Mask, XK_q, ":quit"}
-	, {Mod4Mask, XK_Return, "xfce4-terminal"}
+	, {Mod4Mask, XK_Return, "urxvt"}
 	, {Mod4Mask, XK_r, ":rotate RIGHT"}
-	, {Mod4Mask, XK_l, ":rotate LEFT"}
+	, {Mod4Mask, XK_t, ":rotate LEFT"}
 	, {Mod4Mask, XK_x, "xclock"}
 	, {Mod4Mask, XK_equal, ":resize +"}
 	, {Mod4Mask, XK_minus, ":resize -"}
-	, {Mod4Mask, XK_Delete, ":dirty hack"}
+	, {Mod4Mask, XK_j, ":resize up"}
+	, {Mod4Mask, XK_k, ":resize down"}
+	, {Mod4Mask, XK_h, ":resize left"}
+	, {Mod4Mask, XK_l, ":resize right"}
+	, {Mod4Mask, XK_a, ":move up"}
+	, {Mod4Mask, XK_d, ":move down"}
+	, {Mod4Mask, XK_w, ":move left"}
+	, {Mod4Mask, XK_s, ":move right"}
+	, {Mod4Mask, XK_m, ":master me"}
+	, {Mod4Mask, XK_Tab, ":layoutch"}
+	, {Mod4Mask, XK_q, ":quit"}
 
 
 };

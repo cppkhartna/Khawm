@@ -30,4 +30,9 @@
 #define LEFT 2
 #define clockwise 2
 #define counterclockwise 1
-#define FLOAT 100
+
+//#define TABBED 5
+#define FLOAT 6
+
+#define FOCUS -1
+

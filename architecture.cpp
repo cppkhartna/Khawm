@@ -2,7 +2,6 @@
 #include "khawm.hpp"
 #include "architecture.hpp"
 #include "bar.hpp"
-#include "config.hpp"
 #include <cstring>
 
 const int max_node = 20;
@@ -14,19 +13,22 @@ int node_num = 0;
 void wheel::move(int dir)
 {
 	filler* aux;
-	if (dir == RIGHT)
+	if (count > 0)
 	{
+		if (dir == RIGHT)
+		{
 			aux = focus->next->object;
 			focus->next->object = focus->object;
 			focus->object = aux;
-     	focus = focus->next;
-  } 
-	else if (dir == LEFT)
-	{
+ 	   	focus = focus->next;
+ 	  } 
+		else if (dir == LEFT)
+		{
 			aux = focus->prev->object;
 			focus->prev->object = focus->object;
-  		focus->object = aux;
+ 	 		focus->object = aux;
 			focus = focus->prev;
+		}
 	}
 }
 
@@ -53,7 +55,7 @@ void wheel::rotate(int dir)
 {
 	if (focus)
 	{
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < count - 1; i++)
 		{
 			move(dir);
 		}
@@ -109,12 +111,14 @@ filler* wheel::operator-()
 
 void wheel::operator ++()
 {
-	focus = focus->next;
+	if (count > 0)
+		focus = focus->next;
 }
 
 void wheel::operator --()
 {
-	focus = focus->prev;
+	if (count > 0)
+		focus = focus->prev;
 }
 
 filler* wheel::operator [](unsigned int i)
@@ -193,34 +197,69 @@ void wheel::tile(Display* display, int layout, geom coord)
 
 	if (layout != FLOAT)
 	{
-		if (count >= 5)
+		//if (layout == TABBED)
+		//{
+			//if (count > 0)
+				//focus->object->tile(display, layout,
+					//geom(x, y, w, h));
+		//}
+		//else
 		{
-			master->object->tile(display, layout, 
-						geom(x, y, (int)(0.5*w), h));	
-			
-			for (i = 0; i < count - 1; i++) 
+			if (count >= 5)
 			{
-					aux = aux->next;
+				master->object->tile(display, layout, 
+							geom(x, y, (int)(0.5*w), h));	
+				
+				for (i = 0; i < count - 1; i++) 
+				{
+						aux = aux->next;
+						aux->object->tile(display, layout,
+							geom((int) ((double) x + w*0.5), 
+											y + (int) (i * ( h * ((double) 1/(count-1) ))), 
+											(int) ((double) 0.5*w), 
+										(int) ((double) ((double) h/(count-1) ))));
+				}
+			}	
+			else
+			{
+				for (i = 0; i < count; i++)
+				{
+					//if (aux == focus) 
+						//layout = FOCUS;
+					//else 
+						//layout = 0;
+
+					switch (count)
+					{
+						case 1:
+						case 4:
+						{
+							layout = 0;
+							break;
+						}	
+						case 2:
+						{
+							layout%=2;
+							break;
+						}
+						case 3:
+						{
+							layout%=4;
+							break;
+						}
+					
+					}
+
 					aux->object->tile(display, layout,
-						geom((int) ((double) x + w*0.5), 
-										y + (int) (i * ( h * ((double) 1/(count-1) ))), 
-										(int) ((double) 0.5*w), 
-									(int) ((double) ((double) h/(count-1) ))));
-			}
-		}	
-		else
-		{
-			for (i = 0; i < count; i++)
-			{
-				aux->object->tile(display, layout,
-							geom((int) (x + w*bar[count][layout][i][0]), 
-									 (int) (y + h*bar[count][layout][i][1]),
-									 (int) (w*bar[count][layout][i][2]),
-									 (int) (h*bar[count][layout][i][3])	));
-	
-				aux = aux->next;
-			}
-		}	
+								geom((int) (x + w*bar[count][layout][i][0]), 
+										 (int) (y + h*bar[count][layout][i][1]),
+										 (int) (w*bar[count][layout][i][2]),
+										 (int) (h*bar[count][layout][i][3])	));
+		
+					aux = aux->next;
+				}
+			}	
+		}
 	}
 }
 
@@ -268,7 +307,10 @@ window::~window()
 
 void window::tile(Display* display, int layout, geom coord) 
 {
-	XMoveResizeWindow(display, w, coord.x, coord.y, coord.w, coord.h);	
+	if (layout < FLOAT)
+		XMoveResizeWindow(display, w, coord.x, coord.y, coord.w, coord.h);	
+	//if (layout == FOCUS)
+					//XSetWindowBorder(display, w, 0xFFFFFF);
 }
 
 void window::hide()
@@ -388,11 +430,12 @@ void wheel::node()
 
 }
 
-workspace::workspace(int n)
+workspace::workspace(const char* d_name, int d_layout)
 {
 	wheel_of_windows = new wheel; 
-	name = new char[strlen(desktop_names[n])+1];
-	strcpy(name, desktop_names[n]);
+	name = new char[strlen(d_name)+1];
+	strcpy(name, d_name);
+	def_layout = d_layout;
 }
 
 workspace::~workspace()
@@ -406,7 +449,10 @@ wheel* workspace::windows()
 	return wheel_of_windows;
 }
 
-int workspace::layout() 
+int workspace::layout(int flag) 
 {
-	return def_layout;
+	if (flag == -1)
+			return def_layout;
+	else def_layout = flag;
+	return 0;
 }

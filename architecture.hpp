@@ -35,7 +35,7 @@ public:
 	virtual bool find(Window win) = 0;
 
 	virtual Window get() = 0;
-	virtual int layout() = 0;
+	virtual int layout(int flag = -1) = 0;
 };
 
 class wheel : public filler 
@@ -96,7 +96,7 @@ private:
 	virtual wheel* windows(){return 0;};
 	virtual void update_focus(){};	
 	Window get(){return 0;};
-	int layout(){return 0;};
+	int layout(int flag = -1){return 0;};
 };
 
 class window : public filler 
@@ -126,7 +126,7 @@ public:
 private:
 	window() {};
 	virtual wheel* windows() {return 0;}; 
-	int layout(){return 0;};
+	int layout(int flag = -1){return 0;};
 };
 
 class workspace : public filler
@@ -135,13 +135,13 @@ class workspace : public filler
 	wheel* wheel_of_windows;
 	int def_layout;
 public:
-	workspace (int n);
+	workspace (const char* d_name, int d_layout);
 	~workspace ();
 
   wheel* windows();	
 	
 	void make_me_your_master(wheel* please);
-	int layout();
+	int layout(int flag = -1);
 
 private:
   void tile(Display* display, int layout, geom coord){};

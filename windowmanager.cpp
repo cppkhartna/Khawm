@@ -16,7 +16,7 @@ windowmanager::windowmanager()
 
 	for (int i = 0; i < ndesktops; i++)
 	{
-		*workspaces += (workspace*)(new workspace(i));		
+		*workspaces += (workspace*)(new workspace(desktop_names[i],desktop_def_layouts[i]));		
 	}
 
 	current = workspaces->me()->windows();
@@ -34,9 +34,17 @@ void windowmanager::update_focus()
 
 windowmanager::~windowmanager()
 {
+	for (int i = 0; i < key_number; i++) 
+	{
+		XUngrabKey(display
+				, XKeysymToKeycode(display, keyboard[i].key) 
+				, keyboard[i].mask, root);
+	}
+	XDestroyWindow(display, root);
+	XCloseDisplay(display);
+
 	delete workspaces;
 	delete coord;
-	XCloseDisplay(display);
 }
 
 int windowmanager::Loop()
@@ -88,14 +96,18 @@ void windowmanager::KeyEvents(XEvent *xev)
 {
 	KeySym ks;
 	ks = XKeycodeToKeysym(display, xev->xkey.keycode,0);
-	XWindowAttributes xattr;
+
+	int x;
 
 	switch (ks)
 	{
 		case XK_c:
 		{
-			current->me()->suicide();
-			delete	(-(*current));
+			if (current->me() != 0)
+			{
+				current->me()->suicide();
+				delete	(-(*current));
+			}
 			break;
 		}	
 		case XK_Right:
@@ -143,25 +155,81 @@ void windowmanager::KeyEvents(XEvent *xev)
 			current->rotate(RIGHT);
 			break;
 		}
-		case XK_l:
+		case XK_t:
 		{
 			current->rotate(LEFT);
 			break;
 		}
+		case XK_h:
+		{
+			change_focus_size(-0.05,0);
+			break;
+		}
+		case XK_l:
+		{
+			change_focus_size(+0.05,0);
+			break;
+		}
+		case XK_j:
+		{
+			change_focus_size(0,+0.05);
+			break;
+		}
+		case XK_k:
+		{
+			change_focus_size(0,-0.05);
+			break;
+		}
 		case XK_equal:
 		{
-			XGetWindowAttributes(display, current->me()->get(), &xattr);		
-			current->me()->tile(display, 0, 
-				geom(xattr.x, xattr.y, xattr.width + 5,xattr.height+5));
+			change_focus_size(0.05,0.05);
 			break;
 		}
 		case XK_minus:
 		{
-			XGetWindowAttributes(display, current->me()->get(), &xattr);		
-			current->me()->tile(display, 0, 
-				geom(xattr.x, xattr.y, xattr.width - 5,xattr.height-5));
+			change_focus_size(-0.05,-0.05);
 			break;
 		}
+		case XK_a:
+		{
+			move_focus(-0.05,0);
+			break;
+		}
+		case XK_d:
+		{
+			move_focus(+0.05,0);
+			break;
+		}
+		case XK_w:
+		{
+			move_focus(0, -0.05);
+			break;
+		}
+		case XK_s:
+		{
+			move_focus(0, +0.05);
+			break;
+		}
+		case XK_m:
+		{
+			if (current->me() != 0)
+				current->me()->make_me_your_master(current);
+			break;
+		}
+		case XK_Tab:
+		{
+			x = workspaces->me()->layout();
+			x++;
+			x%=(FLOAT+1);
+			workspaces->me()->layout(x);
+			break;
+		}
+		case XK_q:
+		{
+			exit(0);
+			break;
+		}
+
 		default:
 		{
 			for (int j = 0; j < key_number; j++)
@@ -198,7 +266,35 @@ void windowmanager::gettree()
 					current->operator+=((window*)(new window(display, children[i])));
 	}
 
-	current->node();
 	children = save_children_of_uganda;
 	XFree(children);
 }	
+
+void windowmanager::change_focus_size(double x, double y)
+{
+	if (workspaces->me()->layout() == FLOAT && current->me() != 0)
+	{
+		XWindowAttributes xattr;
+		XGetWindowAttributes(display, current->me()->get(), &xattr);		
+		if ((xattr.width >= 20) && (xattr.height >= 20))
+			current->me()->tile(display, 0, 
+				geom(xattr.x, xattr.y, 
+						xattr.width  + (int) (x*(double)coord->w),
+						xattr.height + (int) (y*(double)coord->h)));
+	}
+}
+
+void windowmanager::move_focus(double x, double y)
+{
+	if (workspaces->me()->layout() == FLOAT && current->me() != 0)
+	{	
+		XWindowAttributes xattr;
+		XGetWindowAttributes(display, current->me()->get(), &xattr);		
+		current->me()->tile(display, 0, 
+		geom(xattr.x + (int) (x*(double)coord->w), 
+					xattr.y + (int) (y*(double)coord->h), 
+					xattr.width,
+					xattr.height));
+	}
+}
+
