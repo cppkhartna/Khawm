@@ -1,0 +1,26 @@
+84e34cc520961d4e2d0bd5b182700bbaa6f67ab1 
+Khartikova Anastasiya 
+cppkhartna@gmail.com 
+1319050026 
+deleted unnecessary files
+:100644 000000 234f5cc... 0000000... D	a.out
+:100644 000000 efea508... 0000000... D	architecture.o
+:100644 100755 2c0f816... b1ee2f9... M	khawm
+:100644 000000 0e25444... 0000000... D	windowmanager.o
+
+db1fbd879a00247837af4b46f0363d243cf6d7c9 
+Khartikova Anastasiya 
+cppkhartna@gmail.com 
+1316778509 
+final
+:100644 100644 165cd20... 54682a8... M	architecture.cpp
+:100644 100644 6d3537c... 6159c59... M	architecture.hpp
+:100644 100644 e74c987... efea508... M	architecture.o
+:100644 100644 9881ef4... 9ea2e71... M	bar.hpp
+:100644 100644 e8a3c23... bf89245... M	config.hpp
+:100644 100644 a2a5db9... b4469b7... M	deps.mk
+:100644 100644 4a3d641... 2c0f816... M	khawm
+:100644 100644 c1537ef... 307bb58... M	khawm.hpp
+:100644 100644 52fe2d6... d5a57c5... M	windowmanager.cpp
+:100644 100644 2f5437c... f352d54... M	windowmanager.hpp
+:100644 100644 c3a6c31... 0e25444... M	windowmanager.o
