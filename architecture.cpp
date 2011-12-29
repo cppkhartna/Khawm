@@ -441,7 +441,7 @@ workspace::workspace(const char* d_name, int d_layout)
 workspace::~workspace()
 {
 	delete wheel_of_windows; 
-	delete name;
+	delete[] name;
 }
 
 wheel* workspace::windows() 
